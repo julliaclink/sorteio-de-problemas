@@ -50,7 +50,7 @@
   .cabecalho { display: flex; justify-content: space-between; align-items: center; gap: 16px 32px; }
   .cabecalho button { flex: none; }
   .palco:has(.bilhete.girando) .cabecalho { display: none; }
-  .palco:has(.bilhete:not(.em-branco)) h1 { font-size: 1.25rem; letter-spacing: -.01em; }
+  .palco:has(.bilhete:not(.em-branco)) h1 { font-size: clamp(1.6rem, 2.6vw, 2.4rem); letter-spacing: -.025em; }
   h1 { font-size: clamp(1.7rem, 3.6vw, 3.6rem); font-weight: 800; line-height: 1.05; letter-spacing: -.03em; margin: 0; }
   h2 { font-size: 1.25rem; font-weight: 800; margin: 0 0 12px; }
   .rotulo { font: 500 .75rem var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--suave); }
@@ -74,14 +74,39 @@
 
   .bilhete { flex: 1; display: flex; flex-direction: column; }
   .em-branco .bilhete-corpo { align-items: center; text-align: center; padding: 0 0 80px; }
-  .em-branco .acoes { margin: 0; }
-  button.gigante { font-size: clamp(1.4rem, 2.4vw, 2rem); padding: 20px clamp(56px, 7vw, 104px); }
-  .bilhete-topo {
-    display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
-    padding: 0 0 14px; border-bottom: 1px solid var(--linha);
-    font: 500 .8rem var(--mono); color: var(--suave);
+  .palco:has(.bilhete.em-branco:not(.girando)) .cabecalho { display: none; }
+  .frase-area { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  button.lapis {
+    position: relative; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; opacity: 0;
   }
-  .numero { color: var(--tinta); font-weight: 500; }
+  button.lapis svg { width: 22px; height: 22px; }
+  button.lapis.ligado { opacity: 1; }
+  button.lapis.ligado::after { content: ""; position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--tinta); }
+  .frase-area:hover .lapis, .frase-area:focus-within .lapis { opacity: 1; }
+  button.titulo-link, button.titulo-link:hover:not(:disabled) { font: inherit; letter-spacing: inherit; color: inherit; text-align: left; padding: 0; border: 0; background: transparent; }
+  button.titulo-link { transform-origin: left center; }
+  button.titulo-link:hover:not(:active) { transform: scale(1.05); }
+  @media (prefers-reduced-motion: reduce) { button.titulo-link:hover:not(:active) { transform: none; } }
+  .frase { margin: 0; font: inherit; }
+  button.frase-botao, button.frase-botao:hover:not(:disabled) { display: block; padding: 0; border: 0; background: transparent; color: var(--tinta); text-align: center; }
+  .frase-texto {
+    display: block; max-width: 11ch; margin: 0 auto;
+    font-size: clamp(2.6rem, min(9vw, 18dvh), 9rem); font-weight: 800; line-height: 1; letter-spacing: -.035em;
+  }
+  .frase-texto { translate: var(--frase-x, 0) var(--frase-y, 0); transition: transform .15s cubic-bezier(.34, 1.56, .64, 1); }
+  .frase-botao:hover:not(:active) .frase-texto, .frase-botao:focus-visible .frase-texto { transform: scale(1.05); }
+  @media (prefers-reduced-motion: reduce) {
+    .frase-texto { transition: none; }
+    .frase-botao:hover:not(:active) .frase-texto, .frase-botao:focus-visible .frase-texto { transform: none; }
+  }
+  .frase-dica {
+    display: block; margin-top: 24px; opacity: 0; transition: opacity .2s ease;
+    font: 400 .9rem var(--mono); color: var(--suave);
+  }
+  .frase-area:hover .frase-dica, .frase-area:focus-within .frase-dica { opacity: 1; }
+  @media (hover: none) { .frase-dica, button.lapis { opacity: 1; } }
+  .estado-desafio { display: block; margin: 0 0 16px; }
   .bilhete-corpo { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: clamp(24px, 4vw, 64px) 0; }
   .titulo-problema {
     font-size: clamp(1.8rem, 5.5vw, 5.5rem); font-weight: 800; line-height: 1.05;
@@ -99,7 +124,6 @@
     overflow: hidden; overflow-wrap: anywhere;
     font-size: max(1.15rem, min(clamp(1.8rem, 5.5vw, 5.5rem), calc(var(--item) * .32))); font-weight: 800; line-height: 1.1; letter-spacing: -.02em;
   }
-  .maquina .acoes { justify-content: center; margin: 16px 0 0; }
   .maquina.ganhou .rolo::before { border-color: var(--tinta); }
   .maquina.ganhou .simbolo:not(.vencedor) { opacity: .2; }
   .blocos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px clamp(24px, 4vw, 56px); margin-top: clamp(20px, 3vw, 40px); }
@@ -117,6 +141,34 @@
   button.grande { font-size: 1.2rem; padding: 16px 32px; }
   button.discreto { border-color: transparent; color: var(--suave); padding: 12px; font-weight: 500; }
   button.mini { min-height: 36px; font: 500 .8rem var(--mono); padding: 4px 8px; border: 1px solid var(--linha); color: var(--suave); border-radius: 6px; flex: none; }
+  button { transition: transform .15s cubic-bezier(.34, 1.56, .64, 1), background-color .15s ease, opacity .15s ease; }
+  button:active:not(:disabled) { transform: scale(.95); transition-duration: .08s; }
+
+  /* Transições entre telas (View Transitions). */
+  ::view-transition { pointer-events: none; }
+  :root[data-transicao="subir"]::view-transition-old(root),
+  :root[data-transicao="subir"]::view-transition-new(root) { mix-blend-mode: normal; }
+  :root[data-transicao="subir"]::view-transition-old(root) { animation: sair-subindo .4s cubic-bezier(.4, 0, .2, 1) both; }
+  :root[data-transicao="subir"]::view-transition-new(root) { animation: entrar-subindo .4s cubic-bezier(.2, .8, .2, 1) both; }
+  :root[data-transicao="revelar"]::view-transition-old(root) { animation: sumir .2s ease both; }
+  :root[data-transicao="revelar"]::view-transition-new(root) { animation: surgir .35s .15s cubic-bezier(.2, .8, .2, 1) both; }
+  :root[data-transicao="suave"]::view-transition-group(root) { animation-duration: .25s; }
+  ::view-transition-group(titulo-sorteado) { animation-duration: .45s; animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
+  ::view-transition-old(titulo-sorteado), ::view-transition-new(titulo-sorteado) { animation-duration: .45s; height: 100%; object-fit: none; object-position: left center; }
+  @keyframes sair-subindo { to { transform: translateY(-30vh); opacity: 0; } }
+  @keyframes entrar-subindo { from { transform: translateY(100vh); } }
+  @keyframes sumir { to { opacity: 0; } }
+  @keyframes surgir { from { opacity: 0; transform: translateY(12px); } }
+  @keyframes aparecer { from { opacity: 0; } }
+
+  dialog[open], #painel-filtros:popover-open, .mais[open] .coluna, .extra details[open] > :not(summary) { animation: surgir .2s ease-out; }
+  dialog[open]::backdrop { animation: aparecer .2s ease-out; }
+
+  @media (prefers-reduced-motion: reduce) {
+    button { transition: none; }
+    button:active:not(:disabled) { transform: none; }
+    dialog[open], dialog[open]::backdrop, #painel-filtros:popover-open, .mais[open] .coluna, .extra details[open] > :not(summary) { animation: none; }
+  }
   :focus-visible { outline: 3px solid var(--destaque); outline-offset: 2px; }
 
   .aviso { color: var(--destaque); margin: 14px 0 0; }
@@ -158,15 +210,15 @@
 <main>
   <div class="palco">
     <header class="cabecalho">
-      <h1 id="titulo">Qual vai ser o seu problema?</h1>
-      <button type="button" id="filtros" popovertarget="painel-filtros">Filtros</button>
-      <div id="painel-filtros" popover>
-        <label><span class="rotulo">Área</span><select id="filtro-area"></select></label>
-        <p id="contagem"></p>
-      </div>
+      <h1 id="titulo"></h1>
     </header>
 
     <article class="bilhete" id="bilhete" aria-live="polite"></article>
+
+    <div id="painel-filtros" popover>
+      <label><span class="rotulo">Área</span><select id="filtro-area"></select></label>
+      <p id="contagem"></p>
+    </div>
   </div>
 
   <section class="extra">
@@ -285,7 +337,6 @@ function el(tag, props = {}, ...filhos) {
   return n;
 }
 
-const numero = (p) => "Nº " + String(p.num).padStart(3, "0");
 const todos = () => [...BANCO, ...estado.proprios];
 const dataCurta = (iso) => new Date(iso).toLocaleDateString("pt-BR");
 
@@ -311,6 +362,21 @@ function escolher() {
   return p;
 }
 
+// Sem suporte do navegador ou com movimento reduzido, a tela só troca direto.
+function transicao(tipo, atualizar) {
+  if (!document.startViewTransition || reduzMovimento) {
+    atualizar();
+    return null;
+  }
+  const raiz = document.documentElement;
+  raiz.dataset.transicao = tipo;
+  const t = document.startViewTransition(atualizar);
+  t.finished.finally(() => {
+    if (raiz.dataset.transicao === tipo) delete raiz.dataset.transicao;
+  });
+  return t;
+}
+
 function sortear() {
   if (girando) return;
   const escolhido = escolher();
@@ -321,6 +387,7 @@ function sortear() {
     return;
   }
   aviso = "";
+  somInicio();
   if (reduzMovimento) {
     sorteado = escolhido;
     renderBilhete();
@@ -328,7 +395,7 @@ function sortear() {
   }
 
   girando = true;
-  girarMaquina(escolhido);
+  transicao("subir", () => girarMaquina(escolhido));
 }
 
 let audio = null;
@@ -346,6 +413,11 @@ function tocar(frequencia, duracao, volume, tipo, atraso = 0) {
   osc.connect(ganho).connect(audio.destination);
   osc.start(inicio);
   osc.stop(inicio + duracao);
+}
+
+function somInicio() {
+  tocar(440, .12, .15, "triangle");
+  tocar(660, .18, .15, "triangle", .07);
 }
 
 const somTique = () => tocar(1800, .03, .12, "triangle");
@@ -391,13 +463,7 @@ function girarMaquina(escolhido) {
   const voltas = 45;
   const fita = criarFita(poolFiltrado(), voltas, escolhido);
   const rolo = el("div", { className: "rolo" }, fita);
-  const parar = botao("Parar", "", () => {
-    parar.disabled = true;
-    animacao.finish();
-  });
-  const maquina = el("div", { className: "maquina" },
-    rolo,
-    el("div", { className: "acoes" }, parar));
+  const maquina = el("div", { className: "maquina" }, rolo);
 
   const b = $("bilhete");
   b.setAttribute("aria-busy", "true");
@@ -416,14 +482,22 @@ function girarMaquina(escolhido) {
   tiquesDoGiro(fita, altura, animacao);
 
   animacao.finished.then(() => {
-    parar.style.visibility = "hidden";
     somPremio();
     maquina.classList.add("ganhou");
     fita.children[voltas].classList.add("vencedor");
     setTimeout(() => {
-      girando = false;
-      sorteado = escolhido;
-      renderBilhete();
+      // O nome vencedor se transforma no título do cartão.
+      fita.children[voltas].style.viewTransitionName = "titulo-sorteado";
+      let titulo = null;
+      const t = transicao("revelar", () => {
+        girando = false;
+        sorteado = escolhido;
+        renderBilhete();
+        titulo = $("bilhete").querySelector(".titulo-problema");
+        titulo.style.viewTransitionName = "titulo-sorteado";
+      });
+      t?.finished.finally(() => { titulo.style.viewTransitionName = ""; });
+      if (!t) titulo.style.viewTransitionName = "";
     }, 1000);
   });
 }
@@ -460,14 +534,18 @@ function evidencias(p) {
       el("p", { className: "nota", textContent: NOTA_EVIDENCIA })));
 }
 
-function topo(p, direita) {
-  return el("div", { className: "bilhete-topo" },
-    el("span", {}, el("span", { className: "numero", textContent: numero(p) }), " · " + p.area),
-    el("span", { textContent: direita }));
-}
-
 function botao(texto, classe, aoClicar) {
   return el("button", { type: "button", className: classe, textContent: texto, onclick: aoClicar });
+}
+
+function botaoLapis() {
+  const ligado = !!$("filtro-area").value;
+  const rotulo = ligado ? "Editar filtros (1 ativo)" : "Editar filtros";
+  const b = el("button", { type: "button", id: "filtros", className: "lapis" + (ligado ? " ligado" : ""), title: rotulo });
+  b.setAttribute("aria-label", rotulo);
+  b.setAttribute("popovertarget", "painel-filtros");
+  b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+  return b;
 }
 
 function renderBilhete() {
@@ -477,17 +555,16 @@ function renderBilhete() {
   const qtd = poolFiltrado().length;
   b.classList.remove("girando");
   b.classList.toggle("em-branco", !ativo && !sorteado);
-  $("titulo").textContent = ativo ? "Este é o seu problema" : "Qual vai ser o seu problema?";
-  $("filtros").style.display = ativo ? "none" : "";
-  $("filtros").textContent = $("filtro-area").value ? "Filtros (1)" : "Filtros";
+  $("titulo").replaceChildren(ativo ? "Este é o seu problema" : botao("Qual o seu problema?", "titulo-link", voltarAoInicio));
   $("contagem").textContent = qtd === 1 ? "1 problema na urna" : qtd + " problemas na urna";
 
   if (ativo) {
     const dias = Math.floor((Date.now() - new Date(ativo.inicio)) / 86400000);
     const tempo = dias === 0 ? "começou hoje" : dias === 1 ? "há 1 dia" : "há " + dias + " dias";
     b.replaceChildren(
-      topo(ativo.problema, "em andamento, " + tempo),
-      el("div", { className: "bilhete-corpo" }, ...detalhes(ativo.problema),
+      el("div", { className: "bilhete-corpo" },
+        el("span", { className: "rotulo estado-desafio", textContent: "Em andamento, " + tempo }),
+        ...detalhes(ativo.problema),
         el("div", { className: "acoes" },
           botao("Resolvi!", "principal grande", () => $("dialogo-resolvi").showModal()),
           botao("Desistir", "discreto", () => $("dialogo-desistir").showModal())),
@@ -498,7 +575,6 @@ function renderBilhete() {
 
   if (sorteado) {
     b.replaceChildren(
-      topo(sorteado, "sorteado"),
       el("div", { className: "bilhete-corpo" }, ...detalhes(sorteado),
         el("div", { className: "acoes" },
           botao("Aceitar o desafio", "principal grande", aceitar),
@@ -510,23 +586,37 @@ function renderBilhete() {
 
   b.replaceChildren(
     el("div", { className: "bilhete-corpo" },
-      el("div", { className: "acoes" }, botao("Sortear", "principal gigante", sortear)),
+      el("div", { className: "frase-area" },
+        el("h2", { className: "frase" },
+          el("button", { type: "button", className: "frase-botao", onclick: sortear },
+            el("span", { className: "frase-texto", textContent: "Qual o seu problema?" }),
+            el("span", { className: "frase-dica", textContent: "Clique para descobrir o seu problema" }))),
+        botaoLapis()),
       aviso ? el("p", { className: "aviso", textContent: aviso }) : ""),
   );
 }
 
+function voltarAoInicio() {
+  if (girando || !sorteado) return;
+  sorteado = null;
+  aviso = "";
+  transicao("suave", renderBilhete);
+}
+
 function aceitar() {
+  // A tela só troca no quadro seguinte: ignora um segundo clique ou um clique durante o giro.
+  if (girando || !sorteado) return;
   estado.ativo = { problema: sorteado, inicio: new Date().toISOString() };
   sorteado = null;
   salvar();
-  renderBilhete();
+  transicao("suave", renderBilhete);
 }
 
 function encerrar(status, link) {
   estado.historico.unshift({ problema: estado.ativo.problema, status, inicio: estado.ativo.inicio, fim: new Date().toISOString(), link });
   estado.ativo = null;
   salvar();
-  renderTudo();
+  transicao("suave", renderTudo);
 }
 
 function linkSeguro(texto) {
@@ -585,6 +675,15 @@ function renderTudo() {
   renderProprios();
 }
 
+// Abre o painel logo abaixo do lápis, sem sair da tela.
+$("painel-filtros").addEventListener("beforetoggle", (e) => {
+  if (e.newState !== "open") return;
+  const lapis = $("filtros").getBoundingClientRect();
+  const largura = Math.min(340, innerWidth - 32);
+  const esquerda = Math.max(16, Math.min(lapis.left + lapis.width / 2 - largura / 2, innerWidth - largura - 16));
+  e.target.style.inset = `${lapis.bottom + 8}px auto auto ${esquerda}px`;
+});
+
 $("filtro-area").addEventListener("change", () => {
   if (girando) return;
   sorteado = null;
@@ -619,6 +718,41 @@ $("form-novo").addEventListener("submit", (e) => {
   e.target.reset();
   renderTudo();
 });
+
+// A frase da tela inicial acompanha o mouse, com atraso suave e deslocamento limitado.
+if (!reduzMovimento) {
+  const alvo = { x: 0, y: 0 };
+  const atual = { x: 0, y: 0 };
+  let quadro = 0;
+  let anterior = 0;
+
+  const mover = (agora) => {
+    const passo = Math.min((agora - anterior) / 1000, .1);
+    anterior = agora;
+    const suavidade = 1 - Math.exp(-passo * 6);
+    atual.x += (alvo.x - atual.x) * suavidade;
+    atual.y += (alvo.y - atual.y) * suavidade;
+    const raiz = document.documentElement.style;
+    raiz.setProperty("--frase-x", atual.x.toFixed(2) + "px");
+    raiz.setProperty("--frase-y", atual.y.toFixed(2) + "px");
+    const parado = Math.abs(alvo.x - atual.x) < .05 && Math.abs(alvo.y - atual.y) < .05;
+    quadro = parado ? 0 : requestAnimationFrame(mover);
+  };
+
+  const mirar = (x, y) => {
+    alvo.x = x;
+    alvo.y = y;
+    if (quadro) return;
+    anterior = performance.now();
+    quadro = requestAnimationFrame(mover);
+  };
+
+  addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
+    mirar((e.clientX / innerWidth * 2 - 1) * 28, (e.clientY / innerHeight * 2 - 1) * 12);
+  });
+  document.documentElement.addEventListener("mouseleave", () => mirar(0, 0));
+}
 
 renderTudo();
 </script>
