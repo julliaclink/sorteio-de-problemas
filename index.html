@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorteio de Problemas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --papel: rgba(255, 255, 255, .62);
+    --solido: #fdfaf3;
+    --tinta: #0f3142;
+    --suave: #2c5163;
+    --linha: rgba(15, 49, 66, .22);
+    --destaque: #0f3a4f;
+    --sobre-destaque: #fff;
+    --realce: #bb3a1c;
+    --ok: #0f5f3c;
+    --sombra: rgba(15, 49, 66, .16);
+    --titulo: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --mono: "DM Mono", Consolas, "Courier New", monospace;
+  }
+  * { box-sizing: border-box; }
+  #fundo { position: fixed; inset: 0; width: 100%; height: 100%; z-index: -1; display: block; }
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #6ed3de, #f8d8c9);
+    color: var(--tinta);
+    font: 16px/1.55 var(--titulo);
+    font-weight: 500;
+  }
+  main { padding-bottom: 72px; }
+  .palco { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; gap: 20px; padding: clamp(16px, 2.5vw, 32px); }
+  .cabecalho { display: flex; justify-content: space-between; align-items: center; gap: 16px 32px; }
+  .cabecalho button { flex: none; }
+  h1 { font-size: clamp(1.7rem, 3.6vw, 3.6rem); font-weight: 800; line-height: 1.05; letter-spacing: -.03em; margin: 0; }
+  h2 { font-size: 1.25rem; font-weight: 800; margin: 0 0 12px; }
+  .rotulo { font: 500 .75rem var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--suave); }
+
+  #painel-filtros {
+    position: fixed; inset: 88px clamp(16px, 2.5vw, 32px) auto auto; margin: 0;
+    width: min(340px, calc(100vw - 32px)); padding: 20px;
+    background: var(--solido); color: var(--tinta);
+    border: 1px solid var(--linha); border-radius: 14px; box-shadow: 0 20px 50px var(--sombra);
+  }
+  #painel-filtros:popover-open { display: grid; gap: 14px; }
+  #contagem { font: 400 .8rem var(--mono); color: var(--suave); margin: 0; }
+  label { display: block; }
+  select, input, textarea {
+    width: 100%; margin-top: 4px; padding: 10px 12px;
+    background: #fff; color: var(--tinta);
+    border: 1px solid var(--linha); border-radius: 8px;
+    font: 500 1rem var(--titulo);
+  }
+  textarea { resize: vertical; min-height: 76px; }
+
+  .bilhete { flex: 1; display: flex; flex-direction: column; background: var(--papel); backdrop-filter: blur(18px); border-radius: 14px; box-shadow: 0 10px 30px var(--sombra); }
+  .bilhete.em-branco { background: transparent; backdrop-filter: none; box-shadow: none; }
+  .em-branco .bilhete-corpo { align-items: center; text-align: center; padding: 0 0 80px; }
+  .em-branco .acoes { margin: 0; }
+  button.gigante { font-size: clamp(1.4rem, 2.4vw, 2rem); padding: 20px clamp(56px, 7vw, 104px); }
+  .bilhete-topo {
+    display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    padding: 14px 24px; border-bottom: 2px dashed var(--linha);
+    font: 500 .8rem var(--mono); color: var(--suave);
+  }
+  .numero { color: var(--realce); font-weight: 500; }
+  .bilhete-corpo { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: clamp(24px, 4vw, 64px); }
+  .titulo-problema {
+    font-size: clamp(1.8rem, 5.5vw, 5.5rem); font-weight: 800; line-height: 1.05;
+    letter-spacing: -.03em; margin: 0; overflow-wrap: anywhere;
+  }
+  .bilhete.girando .bilhete-corpo { align-items: stretch; padding: 0; }
+  .maquina {
+    flex: 1; display: flex; flex-direction: column;
+  }
+  .rolo {
+    position: relative; flex: 1; min-height: 240px; overflow: hidden;
+    -webkit-mask-image: linear-gradient(transparent, #000 14%, #000 86%, transparent);
+    mask-image: linear-gradient(transparent, #000 14%, #000 86%, transparent);
+  }
+  .rolo > div:first-child { position: absolute; inset: 0 0 auto; will-change: transform; }
+  .rolo::before { content: ""; position: absolute; left: 0; right: 0; top: 33.33%; bottom: 33.33%; border-block: 1px solid var(--linha); pointer-events: none; z-index: 1; }
+  .simbolo {
+    height: var(--item); display: flex; align-items: center; justify-content: center; text-align: center;
+    padding: 0 clamp(12px, 3vw, 48px); overflow: hidden; overflow-wrap: anywhere;
+    font-size: max(1.15rem, min(4vw, calc(var(--item) * .32))); font-weight: 800; line-height: 1.1; letter-spacing: -.02em;
+  }
+  .maquina .acoes { justify-content: center; margin: 16px 0 0; }
+  .maquina.ganhou .rolo::before { border-color: var(--realce); }
+  .simbolo.vencedor { color: var(--realce); background: rgba(255, 255, 255, .72); }
+  .blocos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px clamp(24px, 4vw, 56px); margin-top: clamp(20px, 3vw, 40px); }
+  .bloco p { margin: 2px 0 0; font-size: clamp(1rem, 1.3vw, 1.25rem); overflow-wrap: anywhere; }
+  .acoes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: clamp(24px, 3vw, 40px); }
+
+  button {
+    font: 800 1rem var(--titulo); cursor: pointer; border-radius: 10px; padding: 12px 20px;
+    border: 2px solid var(--tinta); background: transparent; color: var(--tinta);
+  }
+  button:not(.principal):not(.discreto):not(.mini) { background: rgba(255, 255, 255, .45); }
+  button:hover:not(:disabled) { background: var(--linha); }
+  button:disabled { opacity: .5; cursor: default; }
+  button.principal { background: var(--destaque); border-color: var(--destaque); color: var(--sobre-destaque); }
+  button.principal:hover:not(:disabled) { background: var(--destaque); filter: brightness(1.35); }
+  button.grande { font-size: 1.2rem; padding: 16px 32px; }
+  button.discreto { border-color: transparent; color: var(--suave); padding: 12px; font-weight: 500; }
+  button.mini { font: 500 .8rem var(--mono); padding: 4px 8px; border: 1px solid var(--linha); color: var(--suave); border-radius: 6px; flex: none; }
+  :focus-visible { outline: 3px solid var(--destaque); outline-offset: 2px; }
+
+  .aviso { color: var(--destaque); margin: 14px 0 0; }
+
+  section.extra {
+    width: min(900px, 100% - 32px); margin: 24px auto 0; padding: 24px;
+    background: var(--papel); backdrop-filter: blur(18px); border-radius: 14px; box-shadow: 0 10px 30px var(--sombra);
+  }
+  ul.lista { list-style: none; margin: 0; padding: 0; }
+  ul.lista li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--linha); }
+  .lista-titulo { overflow-wrap: anywhere; }
+  .lista-meta { font: 400 .78rem var(--mono); color: var(--suave); }
+  .lista-meta.resolvido { color: var(--ok); }
+  .vazio { color: var(--suave); margin: 0; }
+  a { color: var(--realce); }
+
+  details summary { cursor: pointer; font-weight: 800; font-size: 1.25rem; }
+  form.novo { display: grid; gap: 12px; margin-top: 16px; }
+  .mais { margin-top: 20px; }
+  .mais summary { font-size: 1rem; }
+  .mais ul { margin: 2px 0 0; padding-left: 20px; }
+  .mais .nota { color: var(--suave); font-size: .9rem; }
+
+  dialog {
+    background: var(--solido); color: var(--tinta); border: 0; border-radius: 14px;
+    padding: 24px; width: min(440px, calc(100vw - 32px));
+    box-shadow: 0 20px 50px var(--sombra);
+  }
+  dialog::backdrop { background: rgba(0, 0, 0, .5); }
+  dialog p { margin: 0 0 16px; }
+
+  @media (max-width: 460px) {
+    .acoes button { flex: 1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<canvas id="fundo" aria-hidden="true"></canvas>
+<main>
+  <div class="palco">
+    <header class="cabecalho">
+      <h1 id="titulo">Qual vai ser o seu problema?</h1>
+      <button type="button" id="filtros" popovertarget="painel-filtros">Filtros</button>
+      <div id="painel-filtros" popover>
+        <label><span class="rotulo">Área</span><select id="filtro-area"></select></label>
+        <p id="contagem"></p>
+      </div>
+    </header>
+
+    <article class="bilhete" id="bilhete" aria-live="polite"></article>
+  </div>
+
+  <section class="extra">
+    <h2>Histórico</h2>
+    <p class="vazio" id="historico-vazio">Nenhum problema encarado ainda.</p>
+    <ul class="lista" id="historico"></ul>
+  </section>
+
+  <section class="extra">
+    <details>
+      <summary>Adicionar meu próprio problema</summary>
+      <form class="novo" id="form-novo">
+        <label><span class="rotulo">Problema, em uma frase</span><input name="titulo" required maxlength="120"></label>
+        <label><span class="rotulo">Quem sofre com isso</span><input name="quem" required maxlength="120"></label>
+        <label><span class="rotulo">Como é a dor hoje</span><textarea name="dor" required maxlength="400"></textarea></label>
+        <label><span class="rotulo">Menor primeira versão</span><textarea name="mvp" required maxlength="400"></textarea></label>
+        <label><span class="rotulo">Área</span><input name="area" required maxlength="40" list="areas"></label>
+        <datalist id="areas"></datalist>
+        <div><button type="submit">Colocar no sorteio</button></div>
+      </form>
+      <ul class="lista" id="proprios" style="margin-top:20px"></ul>
+    </details>
+  </section>
+</main>
+
+<dialog id="dialogo-resolvi">
+  <form method="dialog" id="form-resolvi">
+    <h2>Problema resolvido!</h2>
+    <label><span class="rotulo">Link do app (opcional)</span>
+      <input type="url" name="link" placeholder="https://"></label>
+    <div class="acoes">
+      <button class="principal" value="ok">Registrar</button>
+      <button class="discreto" value="cancelar" formnovalidate>Ainda não</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dialogo-desistir">
+  <form method="dialog">
+    <h2>Desistir deste problema?</h2>
+    <p>Ele vai para o histórico e não será sorteado de novo.</p>
+    <div class="acoes">
+      <button class="principal" value="ok">Desistir</button>
+      <button class="discreto" value="cancelar">Continuar tentando</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+const NOTA_EVIDENCIA = "A evidência confirma o que a fonte mediu; não prova que um app novo tenha demanda paga. Evidência quantitativa direta, evidência setorial e evidência indireta/guia estão rotuladas. Quando a fonte não mede a rotina operacional exata, isso é dito no próprio cartão. Quem pagaria e a hipótese de demanda são hipóteses de produto a validar, não fatos de mercado.";
+
+const BANCO = [
+  {"id":"caixa-antes-do-recebimento","num":1,"area":"Finanças e precificação","titulo":"O caixa acaba antes de entrar o próximo recebimento","quem":"MEIs e micro e pequenas empresas com contas fixas e entradas irregulares.","dor":"O dono percebe tarde que os recebimentos previstos não cobrirão as contas que vencem na mesma semana.","mvp":"Cadastro manual de saldo, contas a pagar, recebimentos esperados e vencimentos; previsão de 30 dias e alerta de caixa negativo. Sem conexão bancária.","impacto":"Atrasos, juros e risco de interromper a operação.","evidencia":"Em julho de 2026, 9,2 milhões de empresas estavam negativadas; 8,7 milhões eram MPEs. A Serasa descreve caixa apertado como parte do cenário, mas não atribui cada atraso à falta de previsão.","nivelEvidencia":"Quantitativa direta para inadimplência; indireta para a causa operacional.","comoResolvem":"O Sebrae recomenda planilhas de fluxo de caixa e registros de entradas e saídas; não mede quantas empresas usam planilha.","quemPagaria":"Dono de MEI ou pequeno negócio; contador poderia indicar a ferramenta para vários clientes.","hipotese":"Uma previsão simples de saldo negativo, feita antes do vencimento, vale assinatura se evitar atrasos ou horas de conferência.","fontes":[{"titulo":"Inadimplência das empresas em julho de 2026","url":"https://www.serasaexperian.com.br/sala-de-imprensa/indicadores/inadimplencia-chegou-a-9-milhoes-de-empresas-em-julho-e-dividas-somaram-238-bilhoes-revela-serasa-experian/"},{"titulo":"Planejamento financeiro e fluxo de caixa para pequenos negócios","url":"https://meuatendimento.sebrae.com.br/sites/PortalSebrae/artigos/como-fazer-a-gestao-financeira-do-pequeno-negocio%2Cd999a442d2e5a410VgnVCM1000003b74010aRCRD"}]},
+  {"id":"cobranca-de-recebiveis","num":2,"area":"Finanças e precificação","titulo":"Recebíveis vencidos ficam sem acompanhamento de cobrança","quem":"Prestadores B2B, oficinas, pequenas distribuidoras e empresas que vendem a prazo.","dor":"Faturas, parcelas e promessas de pagamento podem ficar espalhadas por mensagens, planilhas e extratos.","mvp":"Importar CSV ou cadastrar faturas; agrupar por vencimento, cliente e valor; criar lembrete e registrar contato/pagamento.","impacto":"Capital de giro retido e tempo gasto cobrando manualmente.","evidencia":"O Sebrae lista contas a receber como controle essencial para pequenos negócios. É evidência de relevância gerencial, não uma pesquisa sobre quantos atrasam cobranças.","nivelEvidencia":"Indireta, baseada em orientação operacional.","comoResolvem":"Planilhas, agenda e contato individual são alternativas plausíveis; a frequência de cada método não foi medida na fonte.","quemPagaria":"Negócio que emite várias cobranças por mês ou escritório contábil com carteira de clientes.","hipotese":"Uma fila de cobranças com lembretes e histórico reduzirá atrasos e esforço sem automatizar mensagens sensíveis.","fontes":[{"titulo":"Controles financeiros essenciais para pequenos negócios","url":"https://bibliotecas.sebrae.com.br/chronus/ARQUIVOS_CHRONUS/bds/bds.nsf/47A3FD6ADC6D190203257140006C9B68/$File/NT00031F3A.pdf"}]},
+  {"id":"conciliacao-pix-cartao-caixa","num":3,"area":"Finanças e precificação","titulo":"O fechamento diário não bate com Pix, cartão e dinheiro","quem":"Lojas, salões, restaurantes e negócios com vários meios de pagamento.","dor":"O total vendido, os comprovantes e os valores efetivamente repassados podem exigir conferência em lugares diferentes.","mvp":"Importação CSV de vendas e repasses, associação manual por data/valor e lista de divergências; começar sem integração bancária.","impacto":"Horas de fechamento e diferenças de caixa difíceis de localizar.","evidencia":"O Sebrae reportou que 97% dos pequenos negócios aceitavam Pix na 8ª Pesquisa Pulso; um guia do Sebrae recomenda conferência diária do caixa. Nenhuma dessas fontes mede divergências de conciliação.","nivelEvidencia":"Contextual direta para adoção de Pix; indireta para divergências.","comoResolvem":"Extratos bancários, relatórios da maquininha e fechamento manual são os registros indicados pelo contexto; a fonte não compara métodos usados.","quemPagaria":"Comércio ou serviço com vários caixas/maquininhas e fechamento frequente.","hipotese":"Importar relatórios simples e destacar diferenças poupa tempo suficiente para justificar cobrança mensal.","fontes":[{"titulo":"Pesquisa Pulso dos Pequenos Negócios — 8ª edição","url":"https://sebraepr.com.br/impulsiona/pesquisa-pulso-dos-pequenos-negocios-8a-edicao/"},{"titulo":"Controles financeiros essenciais para pequenos negócios","url":"https://bibliotecas.sebrae.com.br/chronus/ARQUIVOS_CHRONUS/bds/bds.nsf/47A3FD6ADC6D190203257140006C9B68/$File/NT00031F3A.pdf"}]},
+  {"id":"separacao-caixa-pessoal-empresa","num":4,"area":"Finanças e precificação","titulo":"Despesas pessoais e dinheiro da empresa se misturam","quem":"MEIs e donos de negócios familiares que usam a mesma conta para despesas pessoais e da empresa.","dor":"Fica difícil saber quanto o negócio realmente faturou, gastou ou pode retirar sem comprometer pagamentos.","mvp":"Registro manual de entradas e saídas com etiquetas pessoal/empresa, retirada do dono e resumo mensal; sem movimentar dinheiro.","impacto":"Decisões ruins de retirada e baixa visibilidade da saúde financeira.","evidencia":"O Sebrae orienta separar recursos do negócio das despesas particulares como passo inicial da gestão financeira; a página não mede a proporção que mistura os recursos.","nivelEvidencia":"Indireta, baseada em orientação oficial.","comoResolvem":"A recomendação publicada é separar contas e registrar retiradas; o comportamento atual dos MEIs não foi quantificado nessa fonte.","quemPagaria":"MEI que precisa organizar retiradas mensais ou contador que orienta clientes iniciantes.","hipotese":"Uma separação visual simples entre pessoal e empresa será mais fácil de manter que duas planilhas independentes.","fontes":[{"titulo":"Como fazer a gestão financeira do pequeno negócio","url":"https://meuatendimento.sebrae.com.br/sites/PortalSebrae/artigos/como-fazer-a-gestao-financeira-do-pequeno-negocio%2Cd999a442d2e5a410VgnVCM1000003b74010aRCRD"}]},
+  {"id":"repasse-de-custos-ao-preco","num":5,"area":"Finanças e precificação","titulo":"Os custos sobem, mas o preço de venda fica defasado","quem":"MEIs, lojas e pequenos negócios de alimentação que compram insumos ou mercadorias recorrentes.","dor":"A empresa absorve aumentos de custo e pode vender sem perceber que a margem diminuiu.","mvp":"Calculadora por produto/serviço: insumos, taxas e mão de obra manuais; custo total, margem estimada e comparação de cenários.","impacto":"Margem e lucro menores por produto ou serviço.","evidencia":"Na 8ª Pesquisa Pulso, 70% relataram aumento de custos nos 30 dias anteriores, mas apenas 9% disseram conseguir repassar o aumento aos clientes.","nivelEvidencia":"Quantitativa direta, nacional; não prova que falha de cálculo seja a causa.","comoResolvem":"A pesquisa não descreve o método de precificação. Planilha, calculadora, fornecedor e contador são práticas a verificar por segmento.","quemPagaria":"Negócio com catálogo repetido e custos variáveis, se o cálculo mostrar margem recuperável.","hipotese":"Atualizar custos e testar cenários de preço por produto será mais simples que refazer planilhas manualmente.","fontes":[{"titulo":"Pesquisa Pulso dos Pequenos Negócios — 8ª edição","url":"https://sebraepr.com.br/impulsiona/pesquisa-pulso-dos-pequenos-negocios-8a-edicao/"}]},
+  {"id":"captacao-de-novos-clientes-mei","num":6,"area":"Vendas e canais digitais","titulo":"O MEI tem dificuldade para atrair novos clientes","quem":"Microempreendedores individuais e prestadores locais que fazem a própria divulgação.","dor":"Conseguir contatos qualificados e transformar divulgação em conversas comerciais compete com o trabalho de entrega.","mvp":"Cadastro simples de oferta, canal, lead e próximo passo; lembrete de retorno e painel manual de contatos convertidos.","impacto":"Menos oportunidades e receita instável.","evidencia":"Na Sondagem Econômica MEI de maio de 2025, 21% apontaram dificuldade para divulgar, vender ou se comunicar com clientes como obstáculo.","nivelEvidencia":"Quantitativa direta para a dificuldade geral de venda/divulgação.","comoResolvem":"A 9ª Pesquisa Pulso informa que 7 em cada 10 negócios usam redes sociais e internet para vender; não mede o retorno de cada canal.","quemPagaria":"Profissional autônomo ou MEI que consiga atribuir novos contatos a uma rotina comercial útil.","hipotese":"Um app com plano semanal de divulgação, contatos e origem do lead gerará clientes suficientes para ser pago.","fontes":[{"titulo":"Sondagem Econômica MEI — Principais desafios","url":"https://sebraepr.com.br/impulsiona/meis-em-foco-os-desafios-reais-de-quem-empreende-no-brasil/"},{"titulo":"Pesquisa Pulso dos Pequenos Negócios — 9ª edição","url":"https://sebraepr.com.br/impulsiona/pesquisa-pulso-dos-pequenos-negocios-9a-edicao/"}]},
+  {"id":"retorno-de-orcamentos-em-canais","num":7,"area":"Vendas e canais digitais","titulo":"Orçamentos enviados em conversas ficam sem próximo passo","quem":"Técnicos, salões, oficinas, fotógrafos e prestadores que cotam pelo WhatsApp ou redes sociais.","dor":"O profissional precisa lembrar quem recebeu orçamento, quando retornar e qual foi o combinado.","mvp":"Lista de orçamento com cliente, serviço, valor, estado, validade e lembrete; botão para abrir a conversa existente, sem disparo automático.","impacto":"Tempo perdido e possível venda que esfria.","evidencia":"O Sebrae encontrou dificuldade de venda/comunicação entre 21% dos MEIs e forte uso de canais digitais; a pesquisa não mede orçamentos esquecidos. Evidência indireta para esse fluxo específico.","nivelEvidencia":"Indireta, derivada de dificuldade comercial geral e uso digital.","comoResolvem":"A organização entre conversas, agenda e anotações não foi medida; esses métodos devem ser checados em entrevistas.","quemPagaria":"Prestador que envia vários orçamentos por semana e perde o controle dos retornos.","hipotese":"Um quadro de orçamentos e lembretes reduz esquecimentos sem exigir CRM complexo.","fontes":[{"titulo":"Sondagem Econômica MEI — Principais desafios","url":"https://sebraepr.com.br/impulsiona/meis-em-foco-os-desafios-reais-de-quem-empreende-no-brasil/"},{"titulo":"Pesquisa Pulso dos Pequenos Negócios — 9ª edição","url":"https://sebraepr.com.br/impulsiona/pesquisa-pulso-dos-pequenos-negocios-9a-edicao/"}]},
+  {"id":"reativacao-de-clientes-de-servico","num":8,"area":"Vendas e canais digitais","titulo":"Serviços recorrentes não lembram o cliente na hora da próxima visita","quem":"Oficinas, barbearias, salões, clínicas veterinárias e manutenção residencial.","dor":"A próxima revisão ou retorno depende da memória do profissional e do cliente; o contato pode não acontecer.","mvp":"Ficha mínima de cliente, data/serviço anterior, intervalo definido pelo negócio e lembrete para o profissional convidar o cliente a retornar.","impacto":"Menos recorrência e agenda com espaços vazios.","evidencia":"As fontes consultadas mostram dificuldade geral de venda e comunicação entre MEIs, mas não medem recompra perdida nem frequência de retorno. Evidência indireta.","nivelEvidencia":"Indireta; segmento e frequência precisam de validação própria.","comoResolvem":"Agenda, ficha de cliente ou mensagens futuras são possibilidades a investigar; a pesquisa não documenta a prática.","quemPagaria":"Negócio com ciclos previsíveis de revisão ou manutenção e valor por cliente recorrente.","hipotese":"Lembretes consentidos e histórico de serviço aumentam retornos o suficiente para justificar pagamento.","fontes":[{"titulo":"Sondagem Econômica MEI — Principais desafios","url":"https://sebraepr.com.br/impulsiona/meis-em-foco-os-desafios-reais-de-quem-empreende-no-brasil/"}]},
+  {"id":"catalogo-digital-desatualizado","num":9,"area":"Vendas e canais digitais","titulo":"Catálogos, serviços e preços ficam diferentes entre canais","quem":"Pequenas lojas e prestadores que divulgam ofertas em redes sociais, WhatsApp e plataformas.","dor":"Atualizar manualmente informações em vários lugares consome tempo e pode deixar preço ou disponibilidade inconsistentes.","mvp":"Cadastro central de produtos/serviços e disponibilidade, histórico de atualização e texto copiável para publicar nos canais.","impacto":"Retrabalho, dúvidas e risco de perder confiança ou pedidos.","evidencia":"O Sebrae informa que 7 em cada 10 pequenos negócios vendem pela internet ou redes sociais; a pesquisa não mediu inconsistência de catálogo. Evidência de adoção, indireta para a dor.","nivelEvidencia":"Contextual/indireta.","comoResolvem":"Publicações e listas manuais nos canais; a frequência de divergências não foi pesquisada.","quemPagaria":"Loja com catálogo de itens recorrentes e mais de um canal de venda.","hipotese":"Uma fonte única de preço/disponibilidade, com exportação simples, reduz erros sem exigir integração às plataformas.","fontes":[{"titulo":"Pesquisa Pulso dos Pequenos Negócios — 9ª edição","url":"https://sebraepr.com.br/impulsiona/pesquisa-pulso-dos-pequenos-negocios-9a-edicao/"}]},
+  {"id":"reposicao-antes-da-ruptura","num":10,"area":"Varejo e estoque","titulo":"Itens importantes acabam antes da próxima reposição","quem":"Mercadinhos, lojas de bairro, autopeças e pequenos varejistas com estoque físico.","dor":"Sem enxergar saída e prazo do fornecedor juntos, o negócio pode perceber a falta de um item só quando o cliente procura.","mvp":"Cadastro de itens, saldo, vendas manuais, prazo do fornecedor e limite mínimo; lista diária de compra sugerida para revisão humana.","impacto":"Venda perdida e compra emergencial mais cara.","evidencia":"O Sebrae classifica controle de estoque e informação para reposição como controles essenciais; não mede a frequência de ruptura em pequenas lojas.","nivelEvidencia":"Indireta, baseada em guia de gestão.","comoResolvem":"Contagem física e planilhas/sistemas de estoque são práticas possíveis; a fonte não informa a participação de cada uma.","quemPagaria":"Varejista com produtos de giro rápido e fornecedor com prazo de entrega previsível.","hipotese":"Alertas baseados em estoque mínimo e prazo de compra evitam faltas suficientes para pagar a ferramenta.","fontes":[{"titulo":"Controles financeiros essenciais para pequenos negócios","url":"https://bibliotecas.sebrae.com.br/chronus/ARQUIVOS_CHRONUS/bds/bds.nsf/47A3FD6ADC6D190203257140006C9B68/$File/NT00031F3A.pdf"}]},
+  {"id":"estoque-parado-capital-preso","num":11,"area":"Varejo e estoque","titulo":"Produtos parados prendem capital e espaço de venda","quem":"Pequenos varejistas, lojas de moda, bazares e mercados com muitos SKUs.","dor":"Itens de pouca saída continuam ocupando espaço e dinheiro que poderia financiar produtos mais procurados.","mvp":"Importar CSV de produtos e vendas; classificar giro, dias sem venda e valor em estoque; criar lista de itens para revisão.","impacto":"Capital imobilizado, armazenagem e risco de obsolescência.","evidencia":"O guia do Sebrae inclui reduzir produtos parados entre os objetivos do controle de estoque; não informa prevalência nem valor perdido.","nivelEvidencia":"Indireta, orientação operacional.","comoResolvem":"Inventário e relatórios de venda permitem localizar itens lentos; frequência e precisão desses controles não foram medidas.","quemPagaria":"Loja que financia estoque próprio e sente pressão de caixa.","hipotese":"Um painel de giro e dias sem venda ajuda a decidir reposição, promoção ou descontinuação.","fontes":[{"titulo":"Controles financeiros essenciais para pequenos negócios","url":"https://bibliotecas.sebrae.com.br/chronus/ARQUIVOS_CHRONUS/bds/bds.nsf/47A3FD6ADC6D190203257140006C9B68/$File/NT00031F3A.pdf"}]},
+  {"id":"perdas-por-secao-supermercado","num":12,"area":"Varejo e estoque","titulo":"O supermercado não localiza em qual seção crescem as perdas","quem":"Supermercados independentes e redes regionais com setores de perecíveis, açougue e mercearia.","dor":"Perdas e ineficiência podem ser percebidas no resultado total, sem indicação rápida de setor ou causa para investigar.","mvp":"Entrada manual/CSV de vendas, estoque inicial/final e perdas por seção; comparação semanal e lista de desvios para conferência.","impacto":"Margem perdida e correções tardias.","evidencia":"Na pesquisa de eficiência operacional ABRAS 2026, 29,76% das empresas aumentaram receita, mas também viram a ineficiência crescer; 45,95% cresceram reduzindo perdas. É evidência setorial direta, não prova de uma causa única.","nivelEvidencia":"Quantitativa setorial direta.","comoResolvem":"A pesquisa mede indicadores de eficiência; não descreve os sistemas internos usados por cada supermercado.","quemPagaria":"Gerente ou dono de supermercado com vários departamentos e dados de venda/estoque.","hipotese":"Um painel simples por seção aponta onde auditar antes de comprar um sistema de gestão caro.","fontes":[{"titulo":"Pesquisa de Eficiência Operacional ABRAS 2026","url":"https://www.abras.com.br/economia-e-pesquisa/pesquisa-de-eficiencia-operacional/pesquisa-2026"}]},
+  {"id":"divergencia-entrega-fornecedor","num":13,"area":"Varejo e estoque","titulo":"A quantidade recebida não confere com o pedido ou a nota","quem":"Pequenos mercados, restaurantes, oficinas e lojas que recebem mercadorias de vários fornecedores.","dor":"Diferenças de quantidade, item ou preço podem passar sem registro no recebimento e só aparecer no inventário ou na fatura.","mvp":"Cadastro/importação simples de pedido e itens; checklist de recebimento por quantidade e preço; exportação de divergências com foto.","impacto":"Pagamento indevido, ruptura e tempo de retrabalho.","evidencia":"O Sebrae recomenda controles de estoque, compras e caixa para pequenas empresas; a fonte não mede divergências de entrega. Evidência indireta de necessidade de controle.","nivelEvidencia":"Indireta; a taxa de divergência não foi encontrada.","comoResolvem":"Conferência visual, canhoto e nota fiscal são fluxos plausíveis, mas a fonte não documenta a prática média.","quemPagaria":"Negócio que recebe mercadoria várias vezes por semana e paga por conferência manual.","hipotese":"Um registro rápido de divergência por pedido reduz perdas e facilita contestar a cobrança.","fontes":[{"titulo":"Controles financeiros essenciais para pequenos negócios","url":"https://bibliotecas.sebrae.com.br/chronus/ARQUIVOS_CHRONUS/bds/bds.nsf/47A3FD6ADC6D190203257140006C9B68/$File/NT00031F3A.pdf"}]},
+  {"id":"vales-conciliacao-taxas","num":14,"area":"Alimentação fora do lar","titulo":"Taxas e repasses de vale-alimentação não fecham com as vendas","quem":"Bares, restaurantes e lanchonetes que recebem VA/VR por várias maquininhas ou bandeiras.","dor":"Mudanças de regras, taxas e trilhos de pagamento dificultam saber qual vale foi aceito e qual repasse esperar.","mvp":"Importar CSV de vendas e repasses, classificar bandeira/taxa, comparar valor esperado e recebido e sinalizar divergências.","impacto":"Taxas maiores, conciliação manual e caixa imprevisível.","evidencia":"A Abrasel relata taxas de 6%–7% em auxílio-alimentação, sistemas ainda não integrados e transações que podem ser processadas como débito/crédito. Evidência setorial direta, publicada em outubro de 2026.","nivelEvidencia":"Setorial direta; não quantifica quantos estabelecimentos têm divergência.","comoResolvem":"Conferência de maquininha, operadora e extrato; a notícia descreve a falta de integração, não mede cada rotina local.","quemPagaria":"Restaurante com volume relevante de vales e conferência manual frequente.","hipotese":"Um conciliador independente de relatórios mostra taxas e repasses divergentes sem exigir integração com operadoras.","fontes":[{"titulo":"Interoperabilidade de vales sem sistemas integrados","url":"https://abrasel.com.br/noticias/noticias/interoperabilidade-de-vales-comeca-em-7-de-novembro-sem-sistemas-integrados/"}]},
+  {"id":"simulacao-cbs-restaurante","num":15,"area":"Alimentação fora do lar","titulo":"O restaurante não consegue simular a transição tributária no preço","quem":"Bares, restaurantes e negócios de alimentação fora do lar que precisam rever custo e preço em 2027.","dor":"Mudanças na referência de CBS/IBS dificultam estimar o impacto no custo final antes de atualizar cardápio e orçamento.","mvp":"Calculadora de cenários com parâmetros editáveis, data de vigência, memória de cálculo e aviso de validação com contador.","impacto":"Preço, margem e planejamento tributário.","evidencia":"Em outubro de 2026, a Abrasel informou referência de CBS de 11,35% e preocupação do setor com custos; a alíquota ainda podia ser revista. Evidência setorial e temporal, não medição de perda por estabelecimento.","nivelEvidencia":"Setorial direta; parâmetros regulatórios sujeitos a atualização.","comoResolvem":"A notícia descreve empresários refazendo contas e consultando orientação tributária; não compara ferramentas usadas.","quemPagaria":"Restaurante pequeno que atualiza cardápio ou contador que atende estabelecimentos do setor.","hipotese":"Um simulador transparente e atualizado poupa consultorias repetidas e ajuda a testar cenários, sem substituir contador.","fontes":[{"titulo":"CBS amplia pressão de custos sobre bares e restaurantes","url":"https://abrasel.com.br/noticias/noticias/aliquota-da-cbs-amplia-a-pressao-de-custos-sobre-bares-e-restaurantes/"}]},
+  {"id":"cardapio-atrasado-inflacao","num":16,"area":"Alimentação fora do lar","titulo":"O preço do cardápio não acompanha a inflação dos custos","quem":"Restaurantes, padarias, cafés e lanchonetes que alteram insumos com frequência.","dor":"Adiar reajustes ou recalcular item por item pode deixar o cardápio atrás da inflação e da mudança nos insumos.","mvp":"Cadastro de ingredientes/custo por prato, histórico de preços, alerta de variação e comparação do preço atual com margem estimada.","impacto":"Margem e lucro por prato.","evidencia":"Na pesquisa Abrasel divulgada em outubro de 2026, 60% dos estabelecimentos não tinham acompanhado a inflação nos preços do cardápio; 38% não reajustaram e 22% reajustaram abaixo dela.","nivelEvidencia":"Quantitativa setorial direta.","comoResolvem":"A fonte descreve reajustes de cardápio, mas não como são calculados; planilhas e fichas técnicas precisam ser validadas com os restaurantes.","quemPagaria":"Dono de restaurante com cardápio recorrente e variação de insumos.","hipotese":"Atualizar custos e destacar itens com preço defasado facilita reajustes e compensa uma assinatura baixa.","fontes":[{"titulo":"Pesquisa Abrasel sobre escala, custos e resultados do setor","url":"https://abrasel.com.br/noticias/noticias/fim-da-escala-6x1-vai-tirar-5-9-milhoes-de-horas-semanais-de-trabalho-de-bares-e-restaurantes/"}]},
+  {"id":"lucro-liquido-por-delivery","num":17,"area":"Alimentação fora do lar","titulo":"Mais pedidos de delivery não significam mais lucro","quem":"Restaurantes que vendem em mais de uma plataforma ou participam de campanhas promocionais.","dor":"Volume de pedidos pode crescer sem deixar claro o efeito de ingredientes, embalagens e estrutura sobre o resultado de cada canal.","mvp":"Importar pedidos CSV, incluir taxas e embalagem, estimar contribuição por canal e comparar semanas; sem integração a marketplaces.","impacto":"Margem e custo de operação.","evidencia":"A Abrasel relata que maior faturamento por delivery não vira automaticamente mais lucro e cita ingredientes, embalagens e mudanças na operação como fatores a considerar. Evidência setorial/caso, não estimativa nacional de perda.","nivelEvidencia":"Setorial direta; problema econômico descrito, frequência não quantificada.","comoResolvem":"O exemplo citado ajustou equipe e cozinha; a fonte recomenda analisar rentabilidade por canal, mas não mede ferramentas usadas.","quemPagaria":"Restaurante com vendas em múltiplas plataformas e custo variável por pedido.","hipotese":"Um cálculo por canal/ produto revela promoções que vendem muito mas contribuem pouco.","fontes":[{"titulo":"Concorrência no delivery aumenta com avanço de plataformas","url":"https://abrasel.com.br/noticias/noticias/concorrencia-no-delivery-aumenta-com-avanco-de-plataformas-pelo-interior/"}]},
+  {"id":"picos-de-pedidos-expedicao","num":18,"area":"Alimentação fora do lar","titulo":"Promoções de delivery geram picos que travam a expedição","quem":"Restaurantes que recebem muitos pedidos em campanhas, cupons ou horários concentrados.","dor":"A cozinha e a expedição precisam absorver picos sem atrasar pedidos de salão nem reduzir qualidade.","mvp":"Entrada manual de pedidos por canal, tempo estimado e capacidade por estação; fila por prioridade e alerta de sobrecarga.","impacto":"Atraso, cancelamento, retrabalho e experiência ruim.","evidencia":"A Abrasel descreve um restaurante que transferiu funcionários para expedição/produção e comprou equipamento após aumento de pedidos por cupons. É um caso real, não prova de prevalência nacional.","nivelEvidencia":"Setorial direta, caso individual.","comoResolvem":"No caso publicado, o restaurante reorganizou funções e ampliou estrutura física; a frequência em outros estabelecimentos não foi medida.","quemPagaria":"Restaurante com picos previsíveis e pedidos em múltiplos canais.","hipotese":"Um painel de fila e capacidade permite limitar promoções ou reforçar equipe antes de atrasos.","fontes":[{"titulo":"Concorrência no delivery aumenta com avanço de plataformas","url":"https://abrasel.com.br/noticias/noticias/concorrencia-no-delivery-aumenta-com-avanco-de-plataformas-pelo-interior/"}]},
+  {"id":"visibilidade-de-lucro-restaurante","num":19,"area":"Alimentação fora do lar","titulo":"O restaurante não distingue lucro, empate e prejuízo no mês","quem":"Bares e restaurantes independentes com custos de pessoal, aluguel e insumos variáveis.","dor":"A receita de vendas pode mascarar um mês no zero a zero ou no prejuízo se os custos não forem vistos junto com o faturamento.","mvp":"Registro de vendas e despesas por semana, categorias editáveis e resultado estimado; deixar claro que não é contabilidade oficial.","impacto":"Decisões tardias de preço, escala e compras.","evidencia":"A pesquisa Abrasel citada em outubro de 2026 registrou 40% dos estabelecimentos com lucro em agosto, 40% no zero a zero e 19% no prejuízo. Não mediu falta de ferramentas gerenciais.","nivelEvidencia":"Quantitativa setorial direta para o resultado; indireta para a causa.","comoResolvem":"A fonte relata pesquisas mensais de faturamento e lucro; método individual de apuração não foi informado.","quemPagaria":"Restaurante que não tem equipe financeira dedicada e quer acompanhar resultado semanal.","hipotese":"Um resumo de resultado simples, atualizado manualmente em poucos minutos, ajuda a decidir antes do fim do mês.","fontes":[{"titulo":"Pesquisa Abrasel sobre escala, custos e resultados do setor","url":"https://abrasel.com.br/noticias/noticias/fim-da-escala-6x1-vai-tirar-5-9-milhoes-de-horas-semanais-de-trabalho-de-bares-e-restaurantes/"}]},
+  {"id":"interrupcao-abastecimento-clima","num":20,"area":"Alimentação fora do lar","titulo":"Eventos climáticos ameaçam insumos críticos e a continuidade do serviço","quem":"Restaurantes e outros negócios de alimentação dependentes de perecíveis, água e energia.","dor":"Calor, estiagem, chuva intensa e alagamento podem afetar abastecimento, acesso, delivery e operação diária.","mvp":"Lista de insumos essenciais, fornecedor alternativo, alerta regional manual, checklist de água/energia e plano editável para indisponibilidade.","impacto":"Perda de vendas, insumo indisponível e interrupção do serviço.","evidencia":"A Abrasel cita impactos possíveis do El Niño sobre produção de alimentos, abastecimento, água, energia, acesso de clientes e entregas; recomenda mapear insumos críticos e fornecedores alternativos. É evidência setorial de risco, não taxa histórica de perdas.","nivelEvidencia":"Setorial direta para risco e recomendação; frequência local varia.","comoResolvem":"A cartilha recomenda monitorar alertas, alternativas de fornecedor e contingência; não mede adesão atual.","quemPagaria":"Restaurante dependente de poucos insumos perecíveis ou com delivery relevante.","hipotese":"Um plano de contingência local e acionável reduz tempo de resposta suficiente para justificar uso recorrente.","fontes":[{"titulo":"Abrasel — preparação para impactos do El Niño","url":"https://abrasel.com.br/noticias/noticias/abrasel-lanca-cartilha-para-o-setor-se-preparar-para-os-impactos-do-el-nino/"}]},
+  {"id":"obrigacoes-mei-em-um-lugar","num":21,"area":"Formalização e backoffice","titulo":"Obrigações públicas competem com o atendimento do MEI","quem":"MEIs que administram sozinhos vendas, atendimento e obrigações governamentais.","dor":"Encontrar exigências e organizar prazos tira tempo da entrega e pode deixar pendências sem acompanhamento.","mvp":"Checklist editável de obrigações, datas e links oficiais; sem interpretar regras fiscais ou jurídicas.","impacto":"Horas administrativas e risco de pendências/multas.","evidencia":"Na sondagem MEI de maio de 2025, 16% citaram burocracia e exigências do governo entre os principais obstáculos.","nivelEvidencia":"Quantitativa direta para burocracia geral; obrigações específicas não foram identificadas.","comoResolvem":"A sondagem não perguntou sobre ferramentas; calendário, portal oficial e contador são alternativas a confirmar.","quemPagaria":"MEI sem apoio administrativo ou contador que queira oferecer lembretes a clientes.","hipotese":"Uma lista confiável por tipo de negócio reduz busca e esquecimento em relação a lembretes genéricos.","fontes":[{"titulo":"Sondagem Econômica MEI — Principais desafios","url":"https://sebraepr.com.br/impulsiona/meis-em-foco-os-desafios-reais-de-quem-empreende-no-brasil/"}]},
+  {"id":"emissao-nota-fiscal-mei-servicos","num":22,"area":"Formalização e backoffice","titulo":"O pequeno prestador não sabe qual fluxo de nota fiscal usar","quem":"MEIs de serviços e pequenos vendedores que precisam emitir documentos fiscais diferentes.","dor":"Distinguir NF-e de mercadorias e NFS-e de serviços, achar o portal certo e reunir requisitos técnicos pode interromper o faturamento.","mvp":"Perguntas de triagem para selecionar o fluxo, checklist de dados/documentos e links oficiais; não emitir nem validar a nota.","impacto":"Tempo administrativo e atraso para cobrar o cliente.","evidencia":"O Sebrae mantém instruções distintas para NF-e/NFS-e e informa requisitos como certificado digital em determinados fluxos. Isso documenta a complexidade do processo, não sua prevalência nem taxa de erro.","nivelEvidencia":"Indireta, baseada em orientação de procedimento.","comoResolvem":"Portal do emissor, prefeitura/SEFAZ e contador; a fonte documenta esses caminhos, não qual é mais usado.","quemPagaria":"Prestador que emite notas com frequência ou escritório contábil que auxilia vários MEIs.","hipotese":"Um guia passo a passo contextualizado reduz erros e tempo sem substituir o emissor oficial.","fontes":[{"titulo":"Gestão financeira e emissão de NF-e/NFS-e — Sebrae","url":"https://meuatendimento.sebrae.com.br/sites/PortalSebrae/artigos/como-fazer-a-gestao-financeira-do-pequeno-negocio%2Cd999a442d2e5a410VgnVCM1000003b74010aRCRD"}]},
+  {"id":"preparar-pedido-de-credito","num":23,"area":"Formalização e backoffice","titulo":"O MEI precisa de crédito mas não sabe organizar a solicitação","quem":"MEIs e pequenos negócios que buscam capital de giro ou investimento.","dor":"Reunir dados e documentos para pedir crédito consome tempo e a aprovação não é garantida.","mvp":"Checklist de informações financeiras e documentos, status de solicitações e exportação de um resumo para levar ao banco.","impacto":"Atraso em investimento, estoque ou capital de giro.","evidencia":"Na sondagem MEI, 27% citaram dificuldade de crédito como principal obstáculo e 49% disseram que crédito ajudaria a investir. Na 11ª Pesquisa Pulso, 31% buscaram empréstimo recentemente.","nivelEvidencia":"Quantitativa direta para procura e dificuldade de crédito.","comoResolvem":"Pedidos são feitos a instituições financeiras; pesquisas não detalham como cada empresa prepara documentos.","quemPagaria":"Negócio com necessidade de capital próxima ou contador que prepara vários pedidos.","hipotese":"Um checklist e pacote de dados organizado reduzem retrabalho sem prometer aprovação.","fontes":[{"titulo":"Sondagem Econômica MEI — Principais desafios","url":"https://sebraepr.com.br/impulsiona/meis-em-foco-os-desafios-reais-de-quem-empreende-no-brasil/"},{"titulo":"Pesquisa Pulso dos Pequenos Negócios — 11ª edição","url":"https://sebraepr.com.br/impulsiona/pesquisa-pulso-dos-pequenos-negocios-11a-edicao/"}]},
+  {"id":"comparar-custo-total-credito","num":24,"area":"Formalização e backoffice","titulo":"O negócio compara parcelas sem enxergar o custo total do crédito","quem":"MEIs e microempresas avaliando propostas de bancos, cooperativas ou fintechs.","dor":"Taxas, tarifas, prazo e valor de parcela dificultam comparar propostas de financiamento no mesmo critério.","mvp":"Comparador manual de valor liberado, tarifa, parcelas, prazo e custo total; sem indicar oferta, intermediar crédito ou dar aconselhamento financeiro.","impacto":"Custo financeiro e risco de assumir parcela incompatível com o caixa.","evidencia":"A busca por crédito é documentada: 27% dos MEIs citaram dificuldade de acesso e 31% dos pequenos negócios buscaram empréstimo na pesquisa Pulso. As fontes não medem dificuldade específica de comparação.","nivelEvidencia":"Indireta para comparação; direta para busca/barreira de crédito.","comoResolvem":"Solicitam propostas a instituições; método de comparação não foi descrito nas pesquisas.","quemPagaria":"Empresa que recebeu duas ou mais propostas e precisa decidir antes de assinar.","hipotese":"Uma comparação transparente de custo total e vencimentos reduz decisões apressadas e vale pagamento pontual.","fontes":[{"titulo":"Sondagem Econômica MEI — Principais desafios","url":"https://sebraepr.com.br/impulsiona/meis-em-foco-os-desafios-reais-de-quem-empreende-no-brasil/"},{"titulo":"Pesquisa Pulso dos Pequenos Negócios — 11ª edição","url":"https://sebraepr.com.br/impulsiona/pesquisa-pulso-dos-pequenos-negocios-11a-edicao/"}]},
+  {"id":"fechamento-documentos-contabeis","num":25,"area":"Formalização e backoffice","titulo":"Comprovantes e despesas ficam espalhados até o fechamento do mês","quem":"MEIs e pequenos negócios que enviam documentos periodicamente a um contador.","dor":"Notas, comprovantes e categorias de despesas precisam ser reunidos depois, quando a empresa já está ocupada com a operação.","mvp":"Captura manual de foto/PDF, categoria, data e exportação ZIP/CSV por mês para o contador; sem fazer escrituração.","impacto":"Horas de retrabalho e risco de documento faltante.","evidencia":"O Sebrae recomenda registro diário de receitas e despesas e organização financeira; isso mostra a tarefa de controle, não quantifica documentos perdidos ou o tempo de fechamento.","nivelEvidencia":"Indireta, baseada em orientação financeira.","comoResolvem":"Planilhas, pastas e envio ao contador são meios plausíveis; frequência e falhas não foram medidas.","quemPagaria":"Pequeno negócio com fechamento recorrente ou escritório contábil com muitos clientes.","hipotese":"Uma caixa de entrada mensal com comprovantes e categorias reduz cobranças de documentos e trabalho do contador.","fontes":[{"titulo":"Planejamento financeiro e planilha de gastos — Sebrae","url":"https://meuatendimento.sebrae.com.br/sites/PortalSebrae/artigos/como-fazer-a-gestao-financeira-do-pequeno-negocio%2Cd999a442d2e5a410VgnVCM1000003b74010aRCRD"}]},
+  {"id":"escala-restaurante-jornada","num":26,"area":"Equipe e eficiência operacional","titulo":"Restaurantes precisam refazer escalas e custo de pessoal","quem":"Bares e restaurantes com empregados CLT e operação de seis ou sete dias por semana.","dor":"Mudanças de jornada exigem ajustar turnos, folgas, cobertura e custo sem reduzir o atendimento.","mvp":"Montador manual de turnos, horas/folgas, cobertura mínima e custo estimado por cenário; revisão jurídica externa antes de orientar conformidade.","impacto":"Horas disponíveis, folha e continuidade do serviço.","evidencia":"Pesquisa Abrasel de fevereiro de 2026 encontrou 94,3% dos estabelecimentos com empregados CLT usando mensalistas com uma folga semanal; a associação estimou 5,9 milhões de horas a menos por semana com a mudança descrita em outubro de 2026.","nivelEvidencia":"Quantitativa setorial direta; cenário regulatório e datas devem ser rechecados.","comoResolvem":"Escalas de trabalho existentes e orientação trabalhista; a fonte não avalia softwares usados.","quemPagaria":"Dono ou gerente de restaurante que precisa montar turnos e simular custo.","hipotese":"Um simulador barato reduz horas de planejamento e ajuda a testar cobertura antes de mudar a escala.","fontes":[{"titulo":"Abrasel: jornada, escala e impacto operacional","url":"https://abrasel.com.br/noticias/noticias/fim-da-escala-6x1-vai-tirar-5-9-milhoes-de-horas-semanais-de-trabalho-de-bares-e-restaurantes/"}]},
+  {"id":"recrutamento-restaurante","num":27,"area":"Equipe e eficiência operacional","titulo":"Restaurantes têm dificuldade para preencher vagas operacionais","quem":"Bares e restaurantes pequenos que precisam contratar atendimento, cozinha e expedição.","dor":"Vagas abertas e falta de candidatos aumentam a pressão sobre quem já está na equipe e limitam horários de funcionamento.","mvp":"Cadastro de vaga curta, turno, requisitos, contato e etapa; candidatura simples e exportação de lista para o gerente.","impacto":"Horas extras, sobrecarga e vendas não atendidas.","evidencia":"A reportagem Abrasel cita que 88% dos empresários do setor tinham dificuldade para contratar ao fim de 2025; é uma sondagem setorial, não um retrato de todos os municípios ou cargos.","nivelEvidencia":"Quantitativa setorial direta, auto-relatada.","comoResolvem":"Contratação direta e indicação são rotas plausíveis; a notícia não detalha os canais usados.","quemPagaria":"Restaurante com vagas recorrentes ou associação local que apoie recrutamento.","hipotese":"Um mural local com disponibilidade e turnos acelera contratação sem competir com plataformas gerais de emprego.","fontes":[{"titulo":"Abrasel: jornada, escala e impacto operacional","url":"https://abrasel.com.br/noticias/noticias/fim-da-escala-6x1-vai-tirar-5-9-milhoes-de-horas-semanais-de-trabalho-de-bares-e-restaurantes/"}]},
+  {"id":"passagem-de-turno-operacional","num":28,"area":"Equipe e eficiência operacional","titulo":"Pendências se perdem na passagem entre turnos de atendimento","quem":"Restaurantes, lojas e serviços que mantêm equipes em turnos diferentes.","dor":"Recados sobre pedidos, estoque, equipamento ou cliente podem depender de mensagens e memória de quem encerra o turno.","mvp":"Checklist por turno, responsável, prioridade, foto opcional e confirmação de leitura; sem controle de ponto.","impacto":"Retrabalho, erro de atendimento e perda de tempo no início do turno seguinte.","evidencia":"A Abrasel mostra operação frequente em turnos e trabalho aos domingos no setor; a pesquisa não mediu erros de passagem. Evidência setorial contextual, problema específico a validar.","nivelEvidencia":"Indireta/setorial; frequência de falhas não quantificada.","comoResolvem":"Quadro, caderno ou mensagens são possibilidades a verificar; não são apresentados como prática comprovada.","quemPagaria":"Gerente de estabelecimento com troca diária de equipe.","hipotese":"Uma lista curta de pendências com responsável reduz erros e vira hábito por turno.","fontes":[{"titulo":"Abrasel: jornada, escala e impacto operacional","url":"https://abrasel.com.br/noticias/noticias/fim-da-escala-6x1-vai-tirar-5-9-milhoes-de-horas-semanais-de-trabalho-de-bares-e-restaurantes/"}]},
+  {"id":"contingencia-entrega-chuva","num":29,"area":"Equipe e eficiência operacional","titulo":"Chuva forte ou alagamento interrompe acesso e entregas locais","quem":"Restaurantes, mercados de bairro e comércios que dependem de clientes presenciais ou delivery.","dor":"Chuva intensa pode impedir clientes de chegar, atrasar entregas e exigir mudança rápida no serviço disponível.","mvp":"Checklist de decisão por nível de alerta, modelo de aviso ao cliente, status de entrega e lista de rotas/serviços temporariamente afetados.","impacto":"Cancelamentos, atraso e faturamento perdido.","evidencia":"A Abrasel aponta explicitamente que chuvas e alagamentos podem dificultar o acesso de clientes e comprometer delivery. É evidência de risco setorial, não frequência histórica por cidade.","nivelEvidencia":"Setorial direta para o risco; recorrência local não quantificada.","comoResolvem":"A cartilha recomenda monitorar alertas e elaborar plano de contingência; não mede as ferramentas atualmente usadas.","quemPagaria":"Comércio local com entregas próprias ou alta dependência de atendimento presencial.","hipotese":"Alertas locais e plano de comunicação prontos reduzem cancelamentos e improviso durante eventos severos.","fontes":[{"titulo":"Abrasel — impactos do El Niño e resiliência","url":"https://abrasel.com.br/noticias/noticias/abrasel-lanca-cartilha-para-o-setor-se-preparar-para-os-impactos-do-el-nino/"}]},
+  {"id":"eficiencia-cai-com-crescimento-supermercado","num":30,"area":"Equipe e eficiência operacional","titulo":"O supermercado cresce em vendas, mas a ineficiência também cresce","quem":"Supermercados independentes e regionais que aumentam faturamento sem ampliar controles no mesmo ritmo.","dor":"O crescimento pode vir acompanhado de mais perdas ou esforço operacional, reduzindo o ganho esperado.","mvp":"Importar CSV mensal de faturamento, perdas, horas e despesas; comparar tendências e destacar divergências por seção.","impacto":"Margem e produtividade do crescimento.","evidencia":"Na pesquisa ABRAS 2026, 29,76% das empresas analisadas ampliaram receita enquanto a ineficiência também cresceu. A pesquisa é setorial e não identifica a causa de cada caso.","nivelEvidencia":"Quantitativa setorial direta.","comoResolvem":"A pesquisa compara indicadores de eficiência das empresas; as ferramentas internas não foram detalhadas.","quemPagaria":"Gestor de supermercado com dados de venda, estoque e perdas por seção.","hipotese":"Um painel de poucos indicadores por loja/seção aponta onde agir sem contratar consultoria contínua.","fontes":[{"titulo":"Pesquisa de Eficiência Operacional ABRAS 2026","url":"https://www.abras.com.br/economia-e-pesquisa/pesquisa-de-eficiencia-operacional/pesquisa-2026"}]},
+];
+
+const CHAVE = "sorteio-de-problemas";
+const estadoInicial = () => ({ ativo: null, historico: [], vistos: [], proprios: [], proximoNum: BANCO.length + 1 });
+
+function carregar() {
+  try {
+    return { ...estadoInicial(), ...JSON.parse(localStorage.getItem(CHAVE)) };
+  } catch {
+    return estadoInicial();
+  }
+}
+
+function salvar() {
+  try {
+    localStorage.setItem(CHAVE, JSON.stringify(estado));
+  } catch {
+    // Sem armazenamento (janela privada, por exemplo), o app segue funcionando até fechar.
+  }
+}
+
+const estado = carregar();
+let sorteado = null;
+let girando = false;
+let aviso = "";
+
+const $ = (id) => document.getElementById(id);
+const reduzMovimento = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function el(tag, props = {}, ...filhos) {
+  const n = document.createElement(tag);
+  Object.assign(n, props);
+  n.append(...filhos);
+  return n;
+}
+
+const numero = (p) => "Nº " + String(p.num).padStart(3, "0");
+const todos = () => [...BANCO, ...estado.proprios];
+const dataCurta = (iso) => new Date(iso).toLocaleDateString("pt-BR");
+
+function poolFiltrado() {
+  const area = $("filtro-area").value;
+  const encerrados = new Set(estado.historico.map((h) => h.problema.id));
+  return todos().filter((p) => !encerrados.has(p.id) && (!area || p.area === area));
+}
+
+function escolher() {
+  const pool = poolFiltrado();
+  if (!pool.length) return null;
+  // Evita repetir até dar a volta em todos os problemas disponíveis.
+  let opcoes = pool.filter((p) => !estado.vistos.includes(p.id) && p.id !== sorteado?.id);
+  if (!opcoes.length) {
+    const ids = new Set(pool.map((p) => p.id));
+    estado.vistos = estado.vistos.filter((id) => !ids.has(id));
+    opcoes = pool.length > 1 ? pool.filter((p) => p.id !== sorteado?.id) : pool;
+  }
+  const p = opcoes[Math.floor(Math.random() * opcoes.length)];
+  estado.vistos.push(p.id);
+  salvar();
+  return p;
+}
+
+function sortear() {
+  if (girando) return;
+  const escolhido = escolher();
+  if (!escolhido) {
+    sorteado = null;
+    aviso = "Nenhum problema disponível com esses filtros.";
+    renderBilhete();
+    return;
+  }
+  aviso = "";
+  if (reduzMovimento) {
+    sorteado = escolhido;
+    renderBilhete();
+    return;
+  }
+
+  girando = true;
+  girarMaquina(escolhido);
+}
+
+let audio = null;
+
+function tocar(frequencia, duracao, volume, tipo, atraso = 0) {
+  audio ??= new AudioContext();
+  audio.resume();
+  const inicio = audio.currentTime + atraso;
+  const osc = audio.createOscillator();
+  const ganho = audio.createGain();
+  osc.type = tipo;
+  osc.frequency.value = frequencia;
+  ganho.gain.setValueAtTime(volume, inicio);
+  ganho.gain.exponentialRampToValueAtTime(.001, inicio + duracao);
+  osc.connect(ganho).connect(audio.destination);
+  osc.start(inicio);
+  osc.stop(inicio + duracao);
+}
+
+const somTique = () => tocar(1800, .03, .12, "triangle");
+
+function somPremio() {
+  tocar(880, .25, .15, "sine");
+  tocar(1320, .4, .15, "sine", .12);
+}
+
+// Toca um tique a cada problema que entra na faixa central, acompanhando a velocidade do rolo.
+function tiquesDoGiro(fita, altura, animacao) {
+  let ultimo = 0;
+  const conferir = () => {
+    if (animacao.playState !== "running") return;
+    const y = new DOMMatrixReadOnly(getComputedStyle(fita).transform).m42;
+    const atual = Math.round(-y / altura);
+    if (atual > ultimo) {
+      ultimo = atual;
+      somTique();
+    }
+    requestAnimationFrame(conferir);
+  };
+  conferir();
+}
+
+function criarFita(pool, voltas, final) {
+  // Evita títulos iguais em sequência, inclusive logo antes e logo depois do sorteado.
+  const proximo = (...evitar) => {
+    const opcoes = pool.filter((p) => !evitar.includes(p));
+    const lista = opcoes.length ? opcoes : pool;
+    return lista[Math.floor(Math.random() * lista.length)];
+  };
+  const itens = [];
+  for (let i = 0; i < voltas; i++) {
+    itens.push(proximo(itens[i - 1], i === voltas - 1 ? final : null));
+  }
+  // O sorteado para na linha do meio, com um vizinho abaixo dele.
+  itens.push(final, proximo(final));
+  return el("div", {}, ...itens.map((p) => el("div", { className: "simbolo", textContent: p.titulo })));
+}
+
+function girarMaquina(escolhido) {
+  const voltas = 45;
+  const fita = criarFita(poolFiltrado(), voltas, escolhido);
+  const rolo = el("div", { className: "rolo" }, fita);
+  const parar = botao("Parar", "", () => {
+    parar.disabled = true;
+    animacao.finish();
+  });
+  const maquina = el("div", { className: "maquina" },
+    rolo,
+    el("div", { className: "acoes" }, parar));
+
+  const b = $("bilhete");
+  b.setAttribute("aria-busy", "true");
+  b.classList.add("em-branco", "girando");
+  b.replaceChildren(el("div", { className: "bilhete-corpo" }, maquina));
+
+  const altura = rolo.clientHeight / 3;
+  maquina.style.setProperty("--item", altura + "px");
+  const posicao = (itens) => `translateY(${-itens * altura}px)`;
+  // Começa rápido e vai freando aos poucos até parar.
+  const animacao = fita.animate([
+    { transform: posicao(0), easing: "cubic-bezier(.2, .6, .6, 1)" },
+    { transform: posicao(voltas - 1 + .18), offset: .97, easing: "ease-in-out" },
+    { transform: posicao(voltas - 1) },
+  ], { duration: 12000, fill: "forwards" });
+  tiquesDoGiro(fita, altura, animacao);
+
+  animacao.finished.then(() => {
+    parar.style.visibility = "hidden";
+    somPremio();
+    maquina.classList.add("ganhou");
+    fita.children[voltas].classList.add("vencedor");
+    setTimeout(() => {
+      girando = false;
+      sorteado = escolhido;
+      renderBilhete();
+    }, 1000);
+  });
+}
+
+function detalhes(p) {
+  const bloco = (rotulo, texto) => el("div", { className: "bloco" }, el("span", { className: "rotulo", textContent: rotulo }), el("p", { textContent: texto }));
+  return [
+    el("h2", { className: "titulo-problema", textContent: p.titulo }),
+    el("div", { className: "blocos" },
+      bloco("Quem sofre", p.quem),
+      bloco("A dor", p.dor),
+      bloco("Primeira versão do app", p.mvp)),
+    evidencias(p, bloco),
+  ];
+}
+
+function evidencias(p, bloco) {
+  if (!p.evidencia) return "";
+  const fontes = (p.fontes || []).map((f) => {
+    const href = linkSeguro(f.url);
+    return el("li", {}, href ? el("a", { href, target: "_blank", rel: "noopener noreferrer", textContent: f.titulo }) : f.titulo);
+  });
+  return el("details", { className: "mais" },
+    el("summary", { textContent: "Evidências e fontes" }),
+    el("div", { className: "blocos" },
+      bloco("Impacto", p.impacto),
+      bloco("Evidência da dor", p.evidencia),
+      bloco("Nível de evidência", p.nivelEvidencia),
+      bloco("Como resolvem hoje", p.comoResolvem),
+      bloco("Quem pagaria (hipótese)", p.quemPagaria),
+      bloco("Hipótese de demanda", p.hipotese),
+      el("div", { className: "bloco" }, el("span", { className: "rotulo", textContent: "Fontes" }), el("ul", {}, ...fontes))),
+    el("p", { className: "nota", textContent: NOTA_EVIDENCIA }));
+}
+
+function topo(p, direita) {
+  return el("div", { className: "bilhete-topo" },
+    el("span", {}, el("span", { className: "numero", textContent: numero(p) }), " · " + p.area),
+    el("span", { textContent: direita }));
+}
+
+function botao(texto, classe, aoClicar) {
+  return el("button", { type: "button", className: classe, textContent: texto, onclick: aoClicar });
+}
+
+function renderBilhete() {
+  const b = $("bilhete");
+  b.removeAttribute("aria-busy");
+  const ativo = estado.ativo;
+  const qtd = poolFiltrado().length;
+  b.classList.remove("girando");
+  b.classList.toggle("em-branco", !ativo && !sorteado);
+  $("titulo").textContent = ativo ? "Este é o seu problema" : "Qual vai ser o seu problema?";
+  $("filtros").style.display = ativo ? "none" : "";
+  $("filtros").textContent = $("filtro-area").value ? "Filtros (1)" : "Filtros";
+  $("contagem").textContent = qtd === 1 ? "1 problema na urna" : qtd + " problemas na urna";
+
+  if (ativo) {
+    const dias = Math.floor((Date.now() - new Date(ativo.inicio)) / 86400000);
+    const tempo = dias === 0 ? "começou hoje" : dias === 1 ? "há 1 dia" : "há " + dias + " dias";
+    b.replaceChildren(
+      topo(ativo.problema, "em andamento, " + tempo),
+      el("div", { className: "bilhete-corpo" }, ...detalhes(ativo.problema),
+        el("div", { className: "acoes" },
+          botao("Resolvi!", "principal grande", () => $("dialogo-resolvi").showModal()),
+          botao("Desistir", "discreto", () => $("dialogo-desistir").showModal()))),
+    );
+    return;
+  }
+
+  if (sorteado) {
+    b.replaceChildren(
+      topo(sorteado, "sorteado"),
+      el("div", { className: "bilhete-corpo" }, ...detalhes(sorteado),
+        el("div", { className: "acoes" },
+          botao("Aceitar o desafio", "principal grande", aceitar),
+          botao("Sortear outro", "", sortear))),
+    );
+    return;
+  }
+
+  b.replaceChildren(
+    el("div", { className: "bilhete-corpo" },
+      el("div", { className: "acoes" }, botao("Sortear", "principal gigante", sortear)),
+      aviso ? el("p", { className: "aviso", textContent: aviso }) : ""),
+  );
+}
+
+function aceitar() {
+  estado.ativo = { problema: sorteado, inicio: new Date().toISOString() };
+  sorteado = null;
+  salvar();
+  renderBilhete();
+}
+
+function encerrar(status, link) {
+  estado.historico.unshift({ problema: estado.ativo.problema, status, inicio: estado.ativo.inicio, fim: new Date().toISOString(), link });
+  estado.ativo = null;
+  salvar();
+  renderTudo();
+}
+
+function linkSeguro(texto) {
+  try {
+    const url = new URL(texto);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function renderHistorico() {
+  $("historico-vazio").hidden = estado.historico.length > 0;
+  $("historico").replaceChildren(...estado.historico.map((h) => {
+    const resolvido = h.status === "resolvido";
+    const texto = (resolvido ? "resolvido em " : "desistiu em ") + dataCurta(h.fim);
+    const href = h.link && linkSeguro(h.link);
+    return el("li", {},
+      el("div", {},
+        el("div", { className: "lista-titulo", textContent: h.problema.titulo }),
+        el("div", { className: "lista-meta" + (resolvido ? " resolvido" : ""), textContent: texto },
+          href ? " · " : "",
+          href ? el("a", { href, target: "_blank", rel: "noopener noreferrer", textContent: "ver app" }) : "")));
+  }));
+}
+
+function renderProprios() {
+  $("proprios").replaceChildren(...estado.proprios.map((p) => el("li", {},
+    el("div", { className: "lista-titulo", textContent: p.titulo }),
+    estado.ativo?.problema.id === p.id ? "" : botao("remover", "mini", () => {
+      estado.proprios = estado.proprios.filter((x) => x.id !== p.id);
+      if (sorteado?.id === p.id) sorteado = null;
+      salvar();
+      renderTudo();
+    }))));
+}
+
+function preencher(select, opcoes, rotuloTodos) {
+  const atual = select.value;
+  select.replaceChildren(
+    ...(rotuloTodos ? [el("option", { value: "", textContent: rotuloTodos })] : []),
+    ...opcoes.map((o) => el("option", { value: o, textContent: o })));
+  if (opcoes.includes(atual)) select.value = atual;
+}
+
+function renderFiltros() {
+  const areas = [...new Set(todos().map((p) => p.area))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  preencher($("filtro-area"), areas, "Todas");
+  $("areas").replaceChildren(...areas.map((a) => el("option", { value: a })));
+}
+
+function renderTudo() {
+  renderFiltros();
+  renderBilhete();
+  renderHistorico();
+  renderProprios();
+}
+
+$("filtro-area").addEventListener("change", () => {
+  if (girando) return;
+  sorteado = null;
+  aviso = "";
+  renderBilhete();
+});
+
+$("dialogo-resolvi").addEventListener("close", () => {
+  const d = $("dialogo-resolvi");
+  const link = linkSeguro($("form-resolvi").link.value.trim());
+  if (d.returnValue === "ok") encerrar("resolvido", link);
+  $("form-resolvi").reset();
+  d.returnValue = "";
+});
+
+$("dialogo-desistir").addEventListener("close", () => {
+  const d = $("dialogo-desistir");
+  if (d.returnValue === "ok") encerrar("desistiu", "");
+  d.returnValue = "";
+});
+
+$("form-novo").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const v = (nome) => f.get(nome).trim();
+  estado.proprios.push({
+    id: "p" + estado.proximoNum, num: estado.proximoNum,
+    titulo: v("titulo"), quem: v("quem"), dor: v("dor"), mvp: v("mvp"), area: v("area"),
+  });
+  estado.proximoNum++;
+  salvar();
+  e.target.reset();
+  renderTudo();
+});
+
+renderTudo();
+</script>
+
+<script type="x-shader/x-fragment" id="shader-fundo">
+// "Mesh drift" — made with the 21st.dev Shader Builder
+// Packed WebGL1 uniforms (the shader exposes readable u_* aliases as macros):
+//   u_colors[8] (first 4 used)
+//   vec3(0.239, 0.686, 0.859)
+//   vec3(0.431, 0.827, 0.871)
+//   vec3(0.973, 0.847, 0.788)
+//   vec3(0.984, 0.941, 0.816)
+//   u_scene = vec4(canvas width, canvas height, seconds * 0.73, 4.0)
+//   u_shape = vec4(1.16, 0.34, 0.50, 0.00)
+//   u_surface = vec4(2.40, 1.16, 0.00, 1.00)
+//   u_finish = vec4(0.00, 0.00, 0.000, 0.09)
+//   u_transform = vec4(1453.0, 0.00, 0.00, 0.0)
+//   u_space = vec4(0.00, 0.00, pointer x, pointer y)
+//   u_cursor = vec4(presence, 2.0, 0.65, 0.46)
+
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+uniform vec3 u_colors[8];
+// Seven packed vectors + eight colour vectors = 15 fragment uniform vectors,
+// one below WebGL1's guaranteed minimum. Macros preserve the public u_* API.
+uniform vec4 u_scene;      // resolution.xy, time, colour count
+uniform vec4 u_shape;      // scale, intensity, paramA, warp
+uniform vec4 u_surface;    // detail, contrast, brightness, saturation
+uniform vec4 u_finish;     // hue, vignette, blur, grain
+uniform vec4 u_transform;  // seed, rotation, drift, OKLab toggle
+uniform vec4 u_space;      // offset.xy, pointer.xy
+uniform vec4 u_cursor;
+
+#define u_resolution u_scene.xy
+#define u_time u_scene.z
+#define u_colorCount u_scene.w
+#define u_scale u_shape.x
+#define u_intensity u_shape.y
+#define u_paramA u_shape.z
+#define u_warp u_shape.w
+#define u_detail u_surface.x
+#define u_contrast u_surface.y
+#define u_brightness u_surface.z
+#define u_saturation u_surface.w
+#define u_hue u_finish.x
+#define u_vignette u_finish.y
+#define u_blur u_finish.z
+#define u_grain u_finish.w
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+#define u_seed u_transform.x
+#else
+// Keep hash inputs inside mediump's guaranteed ±2^14 range.
+#define u_seed mod(u_transform.x, 31.0)
+#endif
+#define u_rotate u_transform.y
+#define u_drift u_transform.z
+#define u_oklab u_transform.w
+#define u_offset u_space.xy
+#define u_mouse u_space.zw
+#define u_cursorPresence u_cursor.x
+#define u_cursorEffect u_cursor.y
+#define u_cursorStrength u_cursor.z
+#define u_cursorRadius u_cursor.w
+
+float hash21(vec2 p) {
+#ifndef GL_FRAGMENT_PRECISION_HIGH
+  p = mod(p, 31.0);
+#endif
+  p = fract(p * vec2(234.34, 435.345));
+  p += dot(p, p + 34.23);
+  return fract(p.x * p.y);
+}
+
+// Even, un-structured white noise for film grain (Dave Hoskins hash12). The
+// multiply hash above is fine for value noise but shows a faint axis-aligned
+// mesh at integer fragment coords, which reads as a net over flat areas.
+float grainHash(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+
+vec2 hash22(vec2 p) {
+#ifndef GL_FRAGMENT_PRECISION_HIGH
+  p = mod(p, 31.0);
+#endif
+  float n = sin(dot(p, vec2(41.0, 289.0)));
+  return fract(vec2(15731.743, 7892.321) * n);
+}
+
+float noise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(
+    mix(hash21(i), hash21(i + vec2(1.0, 0.0)), u.x),
+    mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), u.x),
+    u.y);
+}
+
+float fbm(vec2 p) {
+  float v = 0.0;
+  float a = 0.5;
+  for (int i = 0; i < 5; i++) {
+    v += a * noise(p);
+    p = p * 2.03 + vec2(17.0, 9.2);
+    a *= 0.5;
+  }
+  return v;
+}
+
+// --- OKLab colour mixing (perceptual), gated by u_oklab -----------------------
+vec3 srgbToLinear(vec3 c) {
+  return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)),
+    step(0.04045, c));
+}
+vec3 linearToSrgb(vec3 c) {
+  // max() guards the sRGB branch: out-of-gamut OKLab interpolations can send a
+  // channel negative, and pow(negative, …) is NaN which mix()/step() would
+  // then propagate. The linear branch clips such channels to 0 downstream.
+  return mix(c * 12.92, 1.055 * pow(max(c, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055,
+    step(0.0031308, c));
+}
+vec3 linToOklab(vec3 c) {
+  float l = 0.4122214708 * c.r + 0.5363325363 * c.g + 0.0514459929 * c.b;
+  float m = 0.2119034982 * c.r + 0.6806995451 * c.g + 0.1073969566 * c.b;
+  float s = 0.0883024619 * c.r + 0.2817188376 * c.g + 0.6299787005 * c.b;
+  l = pow(max(l, 0.0), 1.0 / 3.0);
+  m = pow(max(m, 0.0), 1.0 / 3.0);
+  s = pow(max(s, 0.0), 1.0 / 3.0);
+  return vec3(
+    0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+    1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+    0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s);
+}
+vec3 oklabToLin(vec3 c) {
+  float l = c.x + 0.3963377774 * c.y + 0.2158037573 * c.z;
+  float m = c.x - 0.1055613458 * c.y - 0.0638541728 * c.z;
+  float s = c.x - 0.0894841775 * c.y - 1.2914855480 * c.z;
+  l = l * l * l; m = m * m * m; s = s * s * s;
+  return vec3(
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s);
+}
+vec3 mixColour(vec3 a, vec3 b, float t) {
+  if (u_oklab > 0.5) {
+    vec3 la = linToOklab(srgbToLinear(a));
+    vec3 lb = linToOklab(srgbToLinear(b));
+    return clamp(linearToSrgb(oklabToLin(mix(la, lb, t))), 0.0, 1.0);
+  }
+  return mix(a, b, t);
+}
+
+// Mix through the recipe colours; x is clamped to 0..1. WebGL1 forbids
+// dynamic uniform indexing in fragment shaders, hence the constant loop.
+vec3 palette(float x) {
+  float n = max(u_colorCount - 1.0, 1.0);
+  float f = clamp(x, 0.0, 1.0) * n;
+  vec3 col = u_colors[0];
+  for (int i = 0; i < 7; i++) {
+    if (float(i) < n)
+      col = mixColour(col, u_colors[i + 1],
+        smoothstep(0.0, 1.0, clamp(f - float(i), 0.0, 1.0)));
+  }
+  return col;
+}
+
+vec3 hueRotate(vec3 col, float a) {
+  const mat3 toYIQ = mat3(0.299, 0.596, 0.211,
+                          0.587, -0.274, -0.523,
+                          0.114, -0.322, 0.312);
+  const mat3 toRGB = mat3(1.0, 1.0, 1.0,
+                          0.956, -0.272, -1.106,
+                          0.621, -0.647, 1.703);
+  vec3 yiq = toYIQ * col;
+  float ca = cos(a), sa = sin(a);
+  yiq = vec3(yiq.x, yiq.y * ca - yiq.z * sa, yiq.y * sa + yiq.z * ca);
+  return toRGB * yiq;
+}
+
+vec3 shade(vec2 uv, vec2 p, float t) {
+  vec3 acc = u_colors[0] * 0.15;
+  float total = 0.15;
+  for (int i = 0; i < 8; i++) {
+    if (float(i) >= u_colorCount) break;
+    float fi = float(i);
+    vec2 c = vec2(
+      sin(t * (0.21 + fi * 0.071) + fi * 2.4 + u_seed),
+      cos(t * (0.17 + fi * 0.093) + fi * 1.7)) * (0.45 + u_intensity * 0.35);
+    float w = exp(-dot(p - c, p - c) * 6.0);
+    acc += u_colors[i] * w;
+    total += w;
+  }
+  return acc / total;
+}
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+  vec2 screenUv = uv;
+  vec2 p = (gl_FragCoord.xy - 0.5 * u_resolution.xy)
+    / min(u_resolution.x, u_resolution.y);
+  float cursorMask = 0.0;
+
+  // Cursor modes 1–3 are local distortions. Push shifts the same screen-space
+  // coordinates before field transforms, so Zoom/Rotate don't change its feel.
+  if (u_cursorPresence > 0.001) {
+    // u_mouse is normalized to -1..1 in canvas space. Convert it to the same
+    // aspect-corrected screen space as p so effects stay under the cursor.
+    vec2 cursor = (0.5 * u_mouse * u_resolution.xy)
+      / min(u_resolution.x, u_resolution.y);
+    vec2 cursorDelta = p - cursor;
+    if (u_cursorEffect < 0.5) {
+      p += cursor * u_cursorPresence * u_cursorStrength * 0.55;
+    } else {
+      float cursorDistance = length(cursorDelta);
+      vec2 cursorDirection = cursorDelta / max(cursorDistance, 0.0001);
+      cursorMask = u_cursorPresence
+        * (1.0 - smoothstep(0.0, u_cursorRadius, cursorDistance));
+      if (u_cursorEffect < 1.5) {
+        p -= cursorDirection * cursorMask * u_cursorStrength * 0.24;
+      } else if (u_cursorEffect < 2.5) {
+        float cursorAngle = cursorMask * u_cursorStrength * 2.2;
+        float cc = cos(cursorAngle), cs = sin(cursorAngle);
+        p = cursor + mat2(cc, -cs, cs, cc) * cursorDelta;
+      } else if (u_cursorEffect < 3.5) {
+        float ripple = sin(
+          cursorDistance / max(u_cursorRadius, 0.001) * 18.0 - u_time * 5.0);
+        p -= cursorDirection * ripple * cursorMask * u_cursorStrength * 0.07;
+      }
+    }
+  }
+
+  // Keep presets that read uv (rather than p) in the same warped space.
+  uv = p * min(u_resolution.x, u_resolution.y) / u_resolution.xy + 0.5;
+  p *= u_scale;
+  // Field transform: rotate, pan, pointer push, slow drift.
+  if (abs(u_rotate) > 0.0001) {
+    float cr = cos(u_rotate), sr = sin(u_rotate);
+    p = mat2(cr, -sr, sr, cr) * p;
+  }
+  p += u_offset;
+  if (u_drift > 0.0001)
+    p += u_drift * vec2(sin(u_time * 0.31), cos(u_time * 0.23));
+  // Organic domain warp.
+  if (u_warp > 0.0) {
+    p += u_warp * (vec2(
+      fbm(p * u_detail + u_seed),
+      fbm(p * u_detail + vec2(5.2, 1.3))) - 0.5);
+  }
+  // Shade, with an optional soft 5-tap blur.
+  vec3 col;
+  if (u_blur > 0.0) {
+    float e = u_blur;
+    float pe = e * u_scale;
+    vec2 uvE = vec2(e) * min(u_resolution.x, u_resolution.y) / u_resolution.xy;
+    col  = shade(uv, p, u_time) * 0.36;
+    col += shade(uv + vec2(uvE.x, 0.0), p + vec2(pe, 0.0), u_time) * 0.16;
+    col += shade(uv - vec2(uvE.x, 0.0), p - vec2(pe, 0.0), u_time) * 0.16;
+    col += shade(uv + vec2(0.0, uvE.y), p + vec2(0.0, pe), u_time) * 0.16;
+    col += shade(uv - vec2(0.0, uvE.y), p - vec2(0.0, pe), u_time) * 0.16;
+  } else {
+    col = shade(uv, p, u_time);
+  }
+  // Post: contrast, saturation, hue, brightness, vignette, grain.
+  if (abs(u_contrast - 1.0) > 0.0001)
+    col = (col - 0.5) * u_contrast + 0.5;
+  if (abs(u_saturation - 1.0) > 0.0001) {
+    float luma = dot(col, vec3(0.299, 0.587, 0.114));
+    col = mix(vec3(luma), col, u_saturation);
+  }
+  if (abs(u_hue) > 0.0001)
+    col = hueRotate(col, u_hue);
+  if (abs(u_brightness) > 0.0001)
+    col += u_brightness;
+  if (u_vignette > 0.0001) {
+    float vd = length(screenUv - 0.5) * 1.41421356;
+    col *= 1.0 - u_vignette * smoothstep(0.35, 1.0, vd);
+  }
+  if (u_cursorPresence > 0.001 && u_cursorEffect > 3.5)
+    col += (vec3(0.18) + col * 0.12) * cursorMask * u_cursorStrength;
+  if (u_grain > 0.0001)
+    col += (grainHash(
+      gl_FragCoord.xy + vec2(u_seed * 17.0, u_seed * 31.0)) - 0.5) * u_grain;
+  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}
+</script>
+
+<script>
+(function iniciarFundo() {
+  const canvas = $("fundo");
+  const gl = canvas.getContext("webgl", { antialias: false, alpha: false });
+  if (!gl) return; // Sem WebGL, fica o degradê do body.
+
+  const compilar = (tipo, fonte) => {
+    const shader = gl.createShader(tipo);
+    gl.shaderSource(shader, fonte);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(shader));
+    return shader;
+  };
+  const programa = gl.createProgram();
+  gl.attachShader(programa, compilar(gl.VERTEX_SHADER, "attribute vec2 a; void main() { gl_Position = vec4(a, 0.0, 1.0); }"));
+  gl.attachShader(programa, compilar(gl.FRAGMENT_SHADER, $("shader-fundo").textContent));
+  gl.bindAttribLocation(programa, 0, "a");
+  gl.linkProgram(programa);
+  if (!gl.getProgramParameter(programa, gl.LINK_STATUS)) {
+    console.warn(gl.getProgramInfoLog(programa));
+    return;
+  }
+  gl.useProgram(programa);
+
+  // Triângulo que cobre a tela inteira.
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0);
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+  const local = (nome) => gl.getUniformLocation(programa, nome);
+  const cores = new Float32Array(24);
+  cores.set([.239, .686, .859, .431, .827, .871, .973, .847, .788, .984, .941, .816]);
+  gl.uniform3fv(local("u_colors"), cores);
+  gl.uniform4f(local("u_shape"), 1.16, .34, .5, 0);
+  gl.uniform4f(local("u_surface"), 2.4, 1.16, 0, 1);
+  gl.uniform4f(local("u_finish"), 0, 0, 0, .09);
+  gl.uniform4f(local("u_transform"), 1453, 0, 0, 0);
+  gl.uniform4f(local("u_cursor"), 1, 0, 1, .46); // Efeito 0: o mouse empurra o gradiente inteiro.
+  const uCena = local("u_scene");
+  const uEspaco = local("u_space");
+
+  // Posição do mouse de -1 a 1; o gradiente persegue o alvo aos poucos.
+  const alvo = { x: 0, y: 0 };
+  const mouse = { x: 0, y: 0 };
+  addEventListener("pointermove", (e) => {
+    alvo.x = e.clientX / innerWidth * 2 - 1;
+    alvo.y = 1 - e.clientY / innerHeight * 2;
+  });
+
+  let segundos = 0;
+  let anterior = null;
+  let quadro = 0;
+  const estatico = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function desenhar() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const largura = Math.round(canvas.clientWidth * dpr);
+    const altura = Math.round(canvas.clientHeight * dpr);
+    if (canvas.width !== largura || canvas.height !== altura) {
+      canvas.width = largura;
+      canvas.height = altura;
+      gl.viewport(0, 0, largura, altura);
+    }
+    gl.uniform4f(uCena, largura, altura, segundos * .73, 4);
+    gl.uniform4f(uEspaco, 0, 0, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  function animar(agora) {
+    if (anterior !== null) {
+      const passo = (agora - anterior) / 1000;
+      segundos += passo;
+      const suavidade = 1 - Math.exp(-passo * 3);
+      mouse.x += (alvo.x - mouse.x) * suavidade;
+      mouse.y += (alvo.y - mouse.y) * suavidade;
+    }
+    anterior = agora;
+    desenhar();
+    quadro = requestAnimationFrame(animar);
+  }
+
+  if (estatico) {
+    desenhar();
+    addEventListener("resize", desenhar);
+    return;
+  }
+
+  // Pausa com a aba escondida, sem pular o tempo ao voltar.
+  document.addEventListener("visibilitychange", () => {
+    cancelAnimationFrame(quadro);
+    anterior = null;
+    if (!document.hidden) quadro = requestAnimationFrame(animar);
+  });
+  if (!document.hidden) quadro = requestAnimationFrame(animar);
+})();
+</script>
+</body>
+</html>
