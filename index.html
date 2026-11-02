@@ -591,7 +591,7 @@ function renderBilhete() {
         el("h2", { className: "frase" },
           el("button", { type: "button", className: "frase-botao", onclick: sortear },
             el("span", { className: "frase-texto", textContent: "Qual o seu problema?" }),
-            el("span", { className: "frase-dica", textContent: "Clique para descobrir o seu problema" }))),
+            el("span", { className: "frase-dica", textContent: "Clique para descobrir um problema que você pode resolver" }))),
         botaoLapis()),
       aviso ? el("p", { className: "aviso", textContent: aviso }) : ""),
   );
