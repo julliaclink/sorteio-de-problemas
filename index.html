@@ -193,6 +193,13 @@
   section.extra {
     margin: 40px clamp(16px, 2.5vw, 32px) 0;
   }
+  /* Na tela inicial não há rolagem: histórico e formulário ficam no painel do lápis. */
+  main:has(.bilhete.em-branco) { padding-bottom: 0; }
+  main:has(.bilhete.em-branco) > #extras { display: none; }
+  #painel-filtros { overflow-y: auto; }
+  #painel-filtros section.extra { margin: 0 0 14px; }
+  #painel-filtros section.extra:last-child { margin-bottom: 0; }
+  #painel-filtros h2 { font-size: 1rem; }
   ul.lista { list-style: none; margin: 0; padding: 0; }
   ul.lista li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--linha); }
   .lista-titulo { overflow-wrap: anywhere; }
@@ -242,6 +249,7 @@
     </div>
   </div>
 
+  <div id="extras">
   <section class="extra">
     <h2>Histórico</h2>
     <p class="vazio" id="historico-vazio">Nenhum problema encarado ainda.</p>
@@ -263,6 +271,7 @@
       <ul class="lista" id="proprios" style="margin-top:20px"></ul>
     </details>
   </section>
+  </div>
 </main>
 
 <dialog id="dialogo-resolvi">
@@ -576,6 +585,8 @@ function renderBilhete() {
   const qtd = poolFiltrado().length;
   b.classList.remove("girando");
   b.classList.toggle("em-branco", !ativo && !sorteado);
+  const lugarExtras = !ativo && !sorteado ? $("painel-filtros") : document.querySelector("main");
+  if ($("extras").parentNode !== lugarExtras) lugarExtras.append($("extras"));
   $("titulo").replaceChildren(ativo ? "Este é o seu problema" : botao("Qual o seu problema?", "titulo-link", voltarAoInicio));
   $("contagem").textContent = qtd === 1 ? "1 problema na urna" : qtd + " problemas na urna";
 
@@ -730,7 +741,10 @@ $("painel-filtros").addEventListener("beforetoggle", (e) => {
   const lapis = $("filtros").getBoundingClientRect();
   const largura = Math.min(340, innerWidth - 32);
   const esquerda = Math.max(16, Math.min(lapis.left + lapis.width / 2 - largura / 2, innerWidth - largura - 16));
-  e.target.style.inset = `${lapis.bottom + 8}px auto auto ${esquerda}px`;
+  // Abre sob o lápis; sem altura suficiente, sobe para o conteúdo caber na tela.
+  const topo = Math.max(16, Math.min(lapis.bottom + 8, innerHeight - 16 - Math.min(420, innerHeight - 32)));
+  e.target.style.inset = `${topo}px auto auto ${esquerda}px`;
+  e.target.style.maxHeight = `${innerHeight - topo - 16}px`;
 });
 
 $("filtro-area").addEventListener("change", () => {
