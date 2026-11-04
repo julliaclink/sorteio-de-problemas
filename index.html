@@ -178,13 +178,13 @@
   @keyframes surgir { from { opacity: 0; transform: translateY(12px); } }
   @keyframes aparecer { from { opacity: 0; } }
 
-  dialog[open], #painel-filtros:popover-open, .mais[open] .coluna, .extra details[open] > :not(summary) { animation: surgir .2s ease-out; }
+  dialog[open], #painel-filtros:popover-open, .mais[open] .coluna, .mais[open] .blocos, .extra details[open] > :not(summary) { animation: surgir .2s ease-out; }
   dialog[open]::backdrop { animation: aparecer .2s ease-out; }
 
   @media (prefers-reduced-motion: reduce) {
     button { transition: none; }
     button:active:not(:disabled) { transform: none; }
-    dialog[open], dialog[open]::backdrop, #painel-filtros:popover-open, .mais[open] .coluna, .extra details[open] > :not(summary) { animation: none; }
+    dialog[open], dialog[open]::backdrop, #painel-filtros:popover-open, .mais[open] .coluna, .mais[open] .blocos, .extra details[open] > :not(summary) { animation: none; }
   }
   :focus-visible { outline: 3px solid var(--destaque); outline-offset: 2px; }
 
@@ -795,10 +795,12 @@ function provas(p) {
 function detalhes(p) {
   return [
     el("h2", { className: "titulo-problema", textContent: p.titulo }),
-    el("div", { className: "blocos" },
-      bloco("Quem sofre", p.quem),
-      bloco("A dor", p.dor),
-      bloco("Primeira versão do app", p.mvp)),
+    el("details", { className: "mais" },
+      el("summary", { textContent: "Detalhes do problema" }),
+      el("div", { className: "blocos" },
+        bloco("Quem sofre", p.quem),
+        bloco("A dor", p.dor),
+        bloco("Primeira versão do app", p.mvp))),
     provas(p),
   ];
 }
