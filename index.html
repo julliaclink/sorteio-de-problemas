@@ -351,6 +351,10 @@ const BANCO = [
   {"id":"passagem-de-turno-operacional","num":28,"area":"Equipe e eficiência operacional","titulo":"Pendências se perdem na passagem entre turnos de atendimento","quem":"Restaurantes, lojas e serviços que mantêm equipes em turnos diferentes.","dor":"Recados sobre pedidos, estoque, equipamento ou cliente podem depender de mensagens e memória de quem encerra o turno.","mvp":"Checklist por turno, responsável, prioridade, foto opcional e confirmação de leitura; sem controle de ponto.","impacto":"Retrabalho, erro de atendimento e perda de tempo no início do turno seguinte.","evidencia":"A Abrasel mostra operação frequente em turnos e trabalho aos domingos no setor; a pesquisa não mediu erros de passagem. Evidência setorial contextual, problema específico a validar.","nivelEvidencia":"Indireta/setorial; frequência de falhas não quantificada.","comoResolvem":"Quadro, caderno ou mensagens são possibilidades a verificar; não são apresentados como prática comprovada.","quemPagaria":"Gerente de estabelecimento com troca diária de equipe.","hipotese":"Uma lista curta de pendências com responsável reduz erros e vira hábito por turno.","fontes":[{"titulo":"Abrasel: jornada, escala e impacto operacional","url":"https://abrasel.com.br/noticias/noticias/fim-da-escala-6x1-vai-tirar-5-9-milhoes-de-horas-semanais-de-trabalho-de-bares-e-restaurantes/"}]},
   {"id":"contingencia-entrega-chuva","num":29,"area":"Equipe e eficiência operacional","titulo":"Chuva forte ou alagamento interrompe acesso e entregas locais","quem":"Restaurantes, mercados de bairro e comércios que dependem de clientes presenciais ou delivery.","dor":"Chuva intensa pode impedir clientes de chegar, atrasar entregas e exigir mudança rápida no serviço disponível.","mvp":"Checklist de decisão por nível de alerta, modelo de aviso ao cliente, status de entrega e lista de rotas/serviços temporariamente afetados.","impacto":"Cancelamentos, atraso e faturamento perdido.","evidencia":"A Abrasel aponta explicitamente que chuvas e alagamentos podem dificultar o acesso de clientes e comprometer delivery. É evidência de risco setorial, não frequência histórica por cidade.","nivelEvidencia":"Setorial direta para o risco; recorrência local não quantificada.","comoResolvem":"A cartilha recomenda monitorar alertas e elaborar plano de contingência; não mede as ferramentas atualmente usadas.","quemPagaria":"Comércio local com entregas próprias ou alta dependência de atendimento presencial.","hipotese":"Alertas locais e plano de comunicação prontos reduzem cancelamentos e improviso durante eventos severos.","fontes":[{"titulo":"Abrasel — impactos do El Niño e resiliência","url":"https://abrasel.com.br/noticias/noticias/abrasel-lanca-cartilha-para-o-setor-se-preparar-para-os-impactos-do-el-nino/"}]},
   {"id":"eficiencia-cai-com-crescimento-supermercado","num":30,"area":"Equipe e eficiência operacional","titulo":"O supermercado cresce em vendas, mas a ineficiência também cresce","quem":"Supermercados independentes e regionais que aumentam faturamento sem ampliar controles no mesmo ritmo.","dor":"O crescimento pode vir acompanhado de mais perdas ou esforço operacional, reduzindo o ganho esperado.","mvp":"Importar CSV mensal de faturamento, perdas, horas e despesas; comparar tendências e destacar divergências por seção.","impacto":"Margem e produtividade do crescimento.","evidencia":"Na pesquisa ABRAS 2026, 29,76% das empresas analisadas ampliaram receita enquanto a ineficiência também cresceu. A pesquisa é setorial e não identifica a causa de cada caso.","nivelEvidencia":"Quantitativa setorial direta.","comoResolvem":"A pesquisa compara indicadores de eficiência das empresas; as ferramentas internas não foram detalhadas.","quemPagaria":"Gestor de supermercado com dados de venda, estoque e perdas por seção.","hipotese":"Um painel de poucos indicadores por loja/seção aponta onde agir sem contratar consultoria contínua.","fontes":[{"titulo":"Pesquisa de Eficiência Operacional ABRAS 2026","url":"https://www.abras.com.br/economia-e-pesquisa/pesquisa-de-eficiencia-operacional/pesquisa-2026"}]},
+  {"id":"exclusao-simples-por-pendencias","num":31,"area":"Formalização e backoffice","titulo":"A cada ciclo de exclusão do Simples, o pequeno negócio notificado tem prazos curtos e uma lista de débitos para acompanhar","quem":"MEIs, microempresas e empresas de pequeno porte que receberam Termo de Exclusão por dívidas com a Receita Federal ou a PGFN.","dor":"Em março de 2026, a Receita notificou 1.102.924 maiores devedores do Simples. Eles tinham 90 dias da ciência do termo para regularizar todos os débitos do Relatório de Pendências; por cálculo próprio a partir das datas da fonte, esse prazo terminou até cerca de 05/08/2026, e quem não regularizou será excluído em 01/01/2027. A contestação tinha prazo próprio de 20 dias úteis, e a ciência ocorria automaticamente no 45º dia se o termo não fosse lido. A fonte não mede quantos perderam o prazo nem por quê, e não há calendário publicado do próximo ciclo.","mvp":"Para o próximo lote de notificações, ainda sem data publicada: tela em que a pessoa informa a data de ciência e digita os débitos do Relatório de Pendências; o app calcula os prazos, mostra a lista de débitos pendentes e pagos, lembra das datas e aponta para as páginas oficiais. Para quem já perdeu o prazo do lote de 2026, a versão se limita a informar a exclusão em 01/01/2027 e a apontar as páginas oficiais sobre nova opção. Sem acesso ao e-CAC e sem interpretar a situação fiscal na primeira versão.","impacto":"Saída do Simples Nacional ou desenquadramento do Simei a partir de 01/01/2027. O lote de 2026 soma cerca de R$ 12,9 bilhões em dívidas.","evidencia":"A Receita Federal notificou 1.102.924 maiores devedores do Simples em março de 2026, sendo 404.368 MEI e 698.556 ME/EPP. O número conta quem foi posto em risco de exclusão, não quem perdeu o controle do prazo; devedores menores e débitos só estaduais ou municipais ficam de fora.","nivelEvidencia":"Contagem oficial direta do público em risco; não mede a falha de acompanhamento.","comoResolvem":"A Receita disponibiliza termo e relatório no DTE-SN. Não se sabe quantos notificados acompanham isso sozinhos, com contador ou não acompanham.","quemPagaria":"Hipótese: escritórios de contabilidade com carteiras de MEI e microempresas; o dono pagaria pouco ou uma vez por ciclo.","hipotese":"Hipótese: parte dos notificados poderia pagar ou parcelar, mas perde o controle de datas e débitos. Precisa ser testada, porque a medição não separa esse grupo de quem simplesmente não tem dinheiro.","fontes":[{"titulo":"Receita Federal: Termo de Exclusão para devedores do Simples Nacional, incluindo MEI (mar/2026)","url":"https://www.gov.br/receitafederal/pt-br/assuntos/noticias/2026/marco/receita-federal-emite-termo-de-exclusao-para-devedores-do-simples-nacional-incluindo-mei"}]},
+  {"id":"rotina-minima-seguranca-digital","num":32,"area":"Segurança digital e golpes","titulo":"Quase metade das pequenas empresas diz não ter política de segurança digital","quem":"Pequenas empresas de 10 a 49 pessoas ocupadas, com acesso à internet e funcionários usando contas e sistemas do negócio.","dor":"Na TIC Empresas 2025, 47% das empresas de 10 a 49 pessoas ocupadas com internet responderam não ter política de segurança digital, 49% responderam ter e 4% não souberam. Responderam não ter 20% das empresas de 50 a 249 pessoas e 10% das de 250 ou mais. A medição mostra a falta declarada de política, não incidentes nem perdas decorrentes dela.","mvp":"Roteiro guiado de 30 minutos que gera uma política de uma página: quem acessa cada conta, ativação de dupla autenticação, cópia de dados e o que fazer em caso de golpe, com lembrete de revisão a cada trimestre.","impacto":"Maior exposição a golpes e invasões, sem valor medido nesta fonte. A TIC Empresas não mede perdas.","evidencia":"Tabela D11 da TIC Empresas 2025 (4.174 empresas entrevistadas de fevereiro de 2025 a janeiro de 2026): na faixa de 10 a 49 pessoas, 49% têm política de segurança digital, 47% não têm e 4% não sabem. O público exclui empresas com menos de 10 pessoas, inclusive MEIs.","nivelEvidencia":"Quantitativa oficial direta para a lacuna; não mede dano.","comoResolvem":"Na TIC Empresas 2025, 26% das empresas de 10 a 49 pessoas ocupadas promoveram treinamento sobre gestão de risco de segurança digital (28% no total).","quemPagaria":"Hipótese: pequenas empresas exigidas por clientes maiores ou seguradoras; provedores de TI locais como revendedores.","hipotese":"Hipótese: há quem adote uma política pronta sem que um incidente tenha acontecido. A disposição para pagar pode ser baixa antes do primeiro golpe.","fontes":[{"titulo":"Cetic.br, TIC Empresas 2025, tabela D11: política de segurança digital","url":"https://cetic.br/pt/tics/pesquisa/2025/empresas/D11/"},{"titulo":"Cetic.br, TIC Empresas 2025, tabela D16: capacitação em segurança digital","url":"https://cetic.br/pt/tics/pesquisa/2025/empresas/D16/"}]},
+  {"id":"dividas-atrasadas-sem-plano","num":33,"area":"Finanças e precificação","titulo":"O negócio com dívidas em atraso precisa decidir o que renegociar primeiro, e não se sabe se tem um retrato do que deve","quem":"MEIs e micro e pequenas empresas com empréstimos ou dívidas vencidas, em especial os que comprometem 30% ou mais dos custos mensais com elas.","dor":"Em março de 2026, 28% dos pequenos negócios tinham dívidas ou empréstimos em atraso; em julho, eram 25%. Entre os que têm dívidas, em março, 54% comprometiam 30% ou mais dos custos mensais com os pagamentos (59% entre MEIs), dentro da faixa de 49% a 56% observada desde 2022. A pesquisa mede o atraso e o peso das dívidas; não mede se o dono sabe o total devido nem se tem plano de renegociação.","mvp":"Lista manual de dívidas com credor, saldo, parcela, juros informados e dias de atraso; o app mostra o total, o peso sobre os custos mensais e simula ordens de pagamento, gerando um resumo para levar à renegociação. Sem recomendar crédito nem prometer quitação.","impacto":"Comprometimento dos custos mensais e risco de agravar o atraso. O app organiza a decisão, mas não resolve a falta de dinheiro.","evidencia":"Pulso dos Pequenos Negócios, 12ª edição (Sebrae, formulário online de 19/02 a 18/03/2026, 8.273 respondentes, erro amostral de 1,1%): 28% com dívidas em atraso e 54% dos endividados com 30% ou mais dos custos comprometidos. A Agência Sebrae informou a queda do atraso para 25% em julho, sem publicar o método dessa rodada.","nivelEvidencia":"Quantitativa setorial direta para o atraso, auto-relatada; não mede a falta de organização.","comoResolvem":"Não se sabe. A pesquisa não pergunta como os negócios organizam ou renegociam as dívidas.","quemPagaria":"Hipótese: programas de renegociação, cooperativas de crédito ou contadores como distribuidores; o dono endividado tende a ter pouca disposição para pagar.","hipotese":"Hipótese: boa parte dos negócios em atraso não tem o retrato consolidado das dívidas e o usaria para negociar melhor. Precisa ser testada.","fontes":[{"titulo":"Sebrae, Pulso dos Pequenos Negócios, 12ª edição (2026), p. 24 e 25","url":"https://datasebrae.com.br/wp-content/uploads/2026/05/Pulso-dos-Peq-Neg-12-ed_Principais-Resultados-v4.2.pdf"},{"titulo":"Agência Sebrae: inadimplência de pequenos negócios cai (set/2026)","url":"https://agenciasebrae.com.br/dados/inadimplencia-de-pequenos-negocios-cai-e-aprovacao-de-credito-atinge-maior-nivel-desde-2022/"}]},
+  {"id":"golpes-boleto-pix-conferencia","num":34,"area":"Segurança digital e golpes","titulo":"Pequenos negócios convivem com tentativas de golpe e temem boletos falsos, mas não se sabe como conferem o que pagam","quem":"Donos de pequenos negócios e MEIs que acumulam atendimento, caixa e pagamentos.","dor":"44% dos pequenos negócios relataram tentativa de golpe digital ou por telefone em 12 meses. Entre os que relataram tentativa, 31% tiveram algum impacto financeiro, pequeno, moderado ou muito significativo, e 64% não tiveram prejuízo. Boleto falso é a principal preocupação (38%), seguido de golpe por telefone (31%) e golpe do Pix (30%); esses três percentuais medem preocupação, não ocorrência. Em entrevista, o presidente do Sebrae citou a falta de checagem do favorecido no Pix e de dupla autenticação; a pesquisa não mede se o dono confere os pagamentos.","mvp":"Checklist de conferência antes de pagar: o usuário cadastra fornecedores habituais com CNPJ e chave Pix e compara o que digita com o cadastro; uma segunda pessoa pode aprovar por link. O app não movimenta dinheiro e não garante que um boleto é legítimo.","impacto":"Perda financeira direta, sem valor medido nesta pesquisa. Os 45% que estimam impacto grave ou muito grave respondem a um cenário hipotético, não a prejuízo vivido.","evidencia":"Sondagem Sebrae/FGV de junho de 2026 (4.466 respostas): 43,9% dos pequenos negócios relataram tentativa de golpe em 12 meses, 26,0% várias vezes. A pesquisa não isola boleto ou Pix na ocorrência; por conta própria, cerca de 14% de todos os pequenos negócios relataram algum impacto financeiro.","nivelEvidencia":"Quantitativa setorial próxima para o risco; não mede pagamento sem conferência.","comoResolvem":"Só 17% dos pequenos negócios declaram medidas estruturadas de proteção, contra 72% das médias e grandes. Não se sabe como os demais conferem pagamentos.","quemPagaria":"Hipótese: pequenos negócios com volume de boletos e funcionário que paga contas; escritórios de contabilidade como canal de venda.","hipotese":"Hipótese: uma conferência leve no momento do pagamento seria usada no dia a dia, em vez de ser abandonada como mais um passo.","fontes":[{"titulo":"Sebrae/FGV, Impactos das Fraudes Digitais nas Empresas (jun/2026)","url":"https://datasebrae.com.br/wp-content/uploads/2026/07/Apresentacao-Quesito-Especial-SEBRAE-MEI-MPE-e-PN-Jun26-V2.pdf"},{"titulo":"Agência Sebrae: quase metade dos pequenos negócios já enfrentou tentativas de golpes","url":"https://agenciasebrae.com.br/cultura-empreendedora/quase-metade-dos-pequenos-negocios-no-pais-ja-enfrentou-tentativas-de-golpes-digitais-ou-por-telefone/"}]},
 ];
 
 const CHAVE = "sorteio-de-problemas";
@@ -373,6 +377,8 @@ function salvar() {
 }
 
 const estado = carregar();
+// Quem salvou o estado antes de o banco crescer não pode repetir números do banco.
+estado.proximoNum = Math.max(estado.proximoNum, BANCO.length + 1);
 let sorteado = null;
 let girando = false;
 let aviso = "";
@@ -594,6 +600,91 @@ const PROVAS = {
       ],
       fonte: "Abras, 19ª Avaliação de Perdas (2019), p. 40",
       url: "https://static.abras.com.br/pdf/perdas_atual%202019.pdf",
+    }],
+  },
+  "exclusao-simples-por-pendencias": {
+    limite: "O número conta quem recebeu o termo, não quem perdeu o prazo, quem foi excluído nem por quê; a Receita não publicou balanço. Cobre só os \"maiores devedores\" com débitos federais. O prazo deste lote terminou por volta de 05/08/2026 (cálculo próprio), e não há data do próximo ciclo.",
+    graficos: [{
+      titulo: "Mais de 1,1 milhão de devedores notificados, 404 mil deles MEI",
+      mede: "Parcela dos 1.102.924 maiores devedores do Simples que receberam Termo de Exclusão em março de 2026.",
+      pontos: [
+        { rotulo: "ME/EPP", valor: 63.3, texto: "698.556" },
+        { rotulo: "MEI", valor: 36.7, texto: "404.368", destaque: true },
+      ],
+      fonte: "Receita Federal (mar/2026)",
+      url: "https://www.gov.br/receitafederal/pt-br/assuntos/noticias/2026/marco/receita-federal-emite-termo-de-exclusao-para-devedores-do-simples-nacional-incluindo-mei",
+    }],
+  },
+  "rotina-minima-seguranca-digital": {
+    limite: "Mede a falta declarada de política, não incidentes, perdas nem vontade de adotar uma. Não foi conferido se a pergunta exige política escrita. Deixa de fora empresas com menos de 10 pessoas, inclusive MEIs.",
+    graficos: [{
+      titulo: "Quase metade das pequenas diz não ter política de segurança digital",
+      mede: "Empresas com internet que responderam não ter política de segurança digital, por pessoas ocupadas; fev/2025 a jan/2026.",
+      pontos: [
+        { rotulo: "10 a 49 pessoas", valor: 47, destaque: true },
+        { rotulo: "50 a 249 pessoas", valor: 20 },
+        { rotulo: "250 ou mais", valor: 10 },
+      ],
+      fonte: "Cetic.br, TIC Empresas 2025, tabela D11",
+      url: "https://cetic.br/pt/tics/pesquisa/2025/empresas/D11/",
+    }],
+  },
+  "dividas-atrasadas-sem-plano": {
+    limite: "Mede atraso e peso das dívidas, não se o dono sabe quanto deve nem se tem plano de renegociação. É autodeclarado, por formulário online, e as rodadas têm intervalos irregulares. O ponto de julho vem só da notícia da 13ª edição, sem método publicado, e o peso dos custos não foi divulgado nessa rodada.",
+    graficos: [{
+      titulo: "Atraso em dívidas chegou a 28% em março de 2026 e recuou para 25% em julho",
+      mede: "Pequenos negócios com dívidas ou empréstimos em aberto e em atraso. Jul/26 vem da Agência Sebrae.",
+      pontos: [
+        { rotulo: "ago/22", valor: 24 },
+        { rotulo: "jan/23", valor: 27 },
+        { rotulo: "abr/23", valor: 26 },
+        { rotulo: "jul/23", valor: 25 },
+        { rotulo: "nov/23", valor: 23 },
+        { rotulo: "fev/24", valor: 25 },
+        { rotulo: "mai/24", valor: 24 },
+        { rotulo: "ago/24", valor: 20 },
+        { rotulo: "nov/24", valor: 22 },
+        { rotulo: "mai/25", valor: 22 },
+        { rotulo: "ago/25", valor: 21 },
+        { rotulo: "mar/26", valor: 28, destaque: true },
+        { rotulo: "jul/26", valor: 25, destaque: true },
+      ],
+      fonte: "Sebrae, Pulso dos Pequenos Negócios, 12ª edição, p. 24",
+      url: "https://datasebrae.com.br/wp-content/uploads/2026/05/Pulso-dos-Peq-Neg-12-ed_Principais-Resultados-v4.2.pdf",
+    }, {
+      titulo: "Peso de 30% ou mais dos custos voltou a 54% em março de 2026",
+      mede: "Pequenos negócios com dívidas cujo pagamento representa 30% ou mais dos custos mensais.",
+      pontos: [
+        { rotulo: "ago/22", valor: 52 },
+        { rotulo: "jan/23", valor: 56 },
+        { rotulo: "abr/23", valor: 52 },
+        { rotulo: "jul/23", valor: 56 },
+        { rotulo: "nov/23", valor: 54 },
+        { rotulo: "fev/24", valor: 55 },
+        { rotulo: "mai/24", valor: 54 },
+        { rotulo: "ago/24", valor: 51 },
+        { rotulo: "nov/24", valor: 50 },
+        { rotulo: "mai/25", valor: 51 },
+        { rotulo: "ago/25", valor: 49 },
+        { rotulo: "mar/26", valor: 54, destaque: true },
+      ],
+      fonte: "Sebrae, Pulso dos Pequenos Negócios, 12ª edição, p. 25",
+      url: "https://datasebrae.com.br/wp-content/uploads/2026/05/Pulso-dos-Peq-Neg-12-ed_Principais-Resultados-v4.2.pdf",
+    }],
+  },
+  "golpes-boleto-pix-conferencia": {
+    limite: "Mede tentativa de qualquer golpe digital ou por telefone, não golpe consumado, e não separa boleto ou Pix. Não mede se o dono confere o que paga nem o valor perdido. Entre quem relatou tentativa, 64% não tiveram prejuízo; a pesquisa não informa margem de erro.",
+    graficos: [{
+      titulo: "44% relataram tentativa de golpe em 12 meses, 26% várias vezes",
+      mede: "Pequenos negócios (MEI e MPE) que dizem ter sofrido tentativa de golpe digital ou por telefone; jun/2026.",
+      pontos: [
+        { rotulo: "Sim, várias vezes", valor: 26.0, destaque: true },
+        { rotulo: "Sim, uma ou duas vezes", valor: 17.9, destaque: true },
+        { rotulo: "Não", valor: 49.4 },
+        { rotulo: "Não sabe ou prefere não responder", valor: 6.7 },
+      ],
+      fonte: "Sebrae/FGV, Impactos das Fraudes Digitais nas Empresas, p. 6",
+      url: "https://datasebrae.com.br/wp-content/uploads/2026/07/Apresentacao-Quesito-Especial-SEBRAE-MEI-MPE-e-PN-Jun26-V2.pdf",
     }],
   },
 };
