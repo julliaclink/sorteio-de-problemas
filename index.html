@@ -393,7 +393,8 @@ function el(tag, props = {}, ...filhos) {
   return n;
 }
 
-const todos = () => [...BANCO, ...estado.proprios];
+// Do banco, só entram na roleta os problemas com dados conferidos em PROVAS.
+const todos = () => [...BANCO.filter((p) => PROVAS[p.id]), ...estado.proprios];
 const dataCurta = (iso) => new Date(iso).toLocaleDateString("pt-BR");
 
 function poolFiltrado() {
@@ -685,6 +686,82 @@ const PROVAS = {
       ],
       fonte: "Sebrae/FGV, Impactos das Fraudes Digitais nas Empresas, p. 6",
       url: "https://datasebrae.com.br/wp-content/uploads/2026/07/Apresentacao-Quesito-Especial-SEBRAE-MEI-MPE-e-PN-Jun26-V2.pdf",
+    }],
+  },
+  "cardapio-atrasado-inflacao": {
+    limite: "É dado autodeclarado à Abrasel, e a página não informa amostra. Não mostra se o atraso vem de falta de cálculo ou de decisão comercial por causa da demanda, nem o efeito na margem por prato. A notícia defende a posição da associação contra o fim da escala 6x1.",
+    graficos: [{
+      titulo: "Seis em cada dez cardápios ficaram atrás da inflação",
+      mede: "Bares e restaurantes que não acompanharam a inflação nos preços do cardápio; pesquisa de set/2026.",
+      pontos: [
+        { rotulo: "Não reajustaram", valor: 38, destaque: true },
+        { rotulo: "Reajustaram abaixo da inflação", valor: 22, destaque: true },
+      ],
+      fonte: "Abrasel (out/2026)",
+      url: "https://abrasel.com.br/noticias/noticias/fim-da-escala-6x1-vai-tirar-5-9-milhoes-de-horas-semanais-de-trabalho-de-bares-e-restaurantes/",
+    }],
+  },
+  "captacao-de-novos-clientes-mei": {
+    limite: "Mede a dificuldade geral de divulgar e vender, não a captação de clientes novos nem a qualidade dos contatos. A página não informa pergunta nem amostra, e o dado é de maio de 2025; a edição de 2026 pode já ter atualizado o número.",
+    graficos: [{
+      titulo: "Vender e divulgar é o segundo maior obstáculo do MEI",
+      mede: "Principais obstáculos citados por MEIs no Brasil; mai/2025.",
+      pontos: [
+        { rotulo: "Acesso ao crédito bancário", valor: 27 },
+        { rotulo: "Divulgar e vender", valor: 21, destaque: true },
+        { rotulo: "Burocracia e exigências do governo", valor: 16 },
+      ],
+      fonte: "Sebrae e FGV, Sondagem econômica MEI, via Sebrae/PR (2025)",
+      url: "https://sebraepr.com.br/impulsiona/meis-em-foco-os-desafios-reais-de-quem-empreende-no-brasil/",
+    }],
+  },
+  "obrigacoes-mei-em-um-lugar": {
+    limite: "Mede dificuldade declarada, não horas gastas, multas ou pendências reais. A reportagem não informa pergunta, amostra nem período, e o relatório original não foi lido.",
+    graficos: [{
+      titulo: "Um terço dos MEIs tem obstáculos com as exigências",
+      mede: "MEIs que apontam obstáculos para cumprir exigências administrativas e tributárias; publicado em out/2026.",
+      pontos: [
+        { rotulo: "Brasil", valor: 32, destaque: true },
+        { rotulo: "Nordeste", valor: 37 },
+      ],
+      fonte: "FGV e Sebrae, via Movimento Econômico (out/2026)",
+      url: "https://movimentoeconomico.com.br/economia/lei-de-incentivos/tributacao/2026/10/22/nordeste-concentra-maior-dificuldade-burocratica-entre-meis-aponta-pesquisa/",
+    }],
+  },
+  "recrutamento-restaurante": {
+    limite: "É percepção autodeclarada de empresários, com amostra não informada, lida em portal setorial e não no relatório. Não separa negócios pequenos nem mede vagas abertas, tempo para preencher ou vendas perdidas.",
+    graficos: [{
+      titulo: "Quase nove em cada dez têm dificuldade para contratar",
+      mede: "Empresários de bares e restaurantes que consideram contratar difícil ou muito difícil; out/2026.",
+      pontos: [
+        { rotulo: "Difícil ou muito difícil", valor: 88, destaque: true },
+      ],
+      fonte: "Abrasel, via Giro News (out/2026)",
+      url: "https://gironews.com/food-service/fim-da-escala-6x1-nao-altera-planos-de-contratacao-para-o-fim-do-ano/",
+    }, {
+      titulo: "Mais de oito em cada dez têm dificuldade em cada função especializada",
+      mede: "Empresários que consideram difícil contratar, por função; out/2026.",
+      pontos: [
+        { rotulo: "Sushimans e churrasqueiros", valor: 88 },
+        { rotulo: "Cozinheiros-chefes", valor: 87 },
+        { rotulo: "Cozinheiros", valor: 86 },
+        { rotulo: "Gerentes", valor: 82 },
+      ],
+      fonte: "Abrasel, via Giro News (out/2026)",
+      url: "https://gironews.com/food-service/fim-da-escala-6x1-nao-altera-planos-de-contratacao-para-o-fim-do-ano/",
+    }],
+  },
+  "eficiencia-cai-com-crescimento-supermercado": {
+    limite: "Cobre só supermercados que participaram das duas últimas edições, sem amostra na página nem separação de independentes e regionais. Não identifica a causa de cada caso, e a maioria do grupo cresceu reduzindo perdas.",
+    graficos: [{
+      titulo: "Três em cada dez cresceram sem ganhar eficiência",
+      mede: "Supermercados presentes nas duas últimas edições da pesquisa, por faturamento e perdas; dados de 2025.",
+      pontos: [
+        { rotulo: "Cresceram e reduziram perdas", valor: 45.95 },
+        { rotulo: "Cresceram com a ineficiência junto", valor: 29.76, destaque: true },
+      ],
+      fonte: "Abras, Pesquisa de Eficiência Operacional 2026",
+      url: "https://www.abras.com.br/economia-e-pesquisa/pesquisa-de-eficiencia-operacional/pesquisa-2026",
     }],
   },
 };
